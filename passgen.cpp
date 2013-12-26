@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
     if(argc != 2)
     {
         showHelp();
-        return 1;
+        return EXIT_FAILURE;
     }
 
     char set[255]; 
@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
     if(strncmp(argv[1],"--help", 6) == 0)
     {
         showHelp();
-        return 0;
+        return EXIT_SUCCESS;
     }
     else if(strncmp(argv[1], "--ascii", 7) == 0)
     {
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
     else
     {
         showHelp();
-        return 1;
+        return EXIT_FAILURE;
     }
 
     char result[PASSWORD_LENGTH];
@@ -177,6 +177,6 @@ int main(int argc, char* argv[])
         return 2;
     }
     memset(result, 0, PASSWORD_LENGTH);
-    return 0;
+    return EXIT_SUCCESS;
 }
 
