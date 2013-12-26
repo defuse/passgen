@@ -140,17 +140,17 @@ int main(int argc, char* argv[])
         showHelp();
         return 0;
     }
-    else if(strncmp(argv[1], "--ascii",5) == 0)
+    else if(strncmp(argv[1], "--ascii", 7) == 0)
     {
         strcpy(set, "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
         setlength = 94;
     }
-    else if(strncmp(argv[1], "--hex", 3) == 0)
+    else if(strncmp(argv[1], "--hex", 5) == 0)
     {
         strcpy(set, "ABCDEF0123456789");
         setlength = 16;
     }
-    else if(strncmp(argv[1], "--alpha", 5) == 0)
+    else if(strncmp(argv[1], "--alpha", 7) == 0)
     {
         strcpy(set, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         setlength = 62;
