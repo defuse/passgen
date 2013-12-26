@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
         showHelp();
         return 0;
     }
-    else if(strncmp(argv[1], "--ascii", 6) == 0)
+    else if(strncmp(argv[1], "--ascii", 7) == 0)
     {
         strcpy(set, "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
         setlength = 94;
