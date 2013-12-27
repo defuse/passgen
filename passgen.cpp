@@ -1,5 +1,5 @@
 /* Command Line Password Generator for Windows and UNIX-like systems.
- * Copyright (C) 2011  FireXware <firexware@gmail.com>
+ * Copyright (C) 2011  Taylor Hornby
  * https://defuse.ca/ 
  *
  * This program is free software: you can redistribute it and/or modify
@@ -14,6 +14,10 @@
  
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Version 2 by Stephen Chavez (dicesoft.net)
+ * 1. Better piping support for linux/unix oses
+ * 2. added password-count option
  *
  * Compiling with Visual C++:
  *  cl.exe passgen.cpp advapi32.lib
@@ -60,7 +64,7 @@ bool getRandom(unsigned char* buffer, unsigned int bufferlength)
 
 void showHelp()
 {
-    puts("Usage: passgen <type>");
+    puts("Usage: passgen <type> --verbose (optional: shows extra info) --password-count # (optional)");
     puts("Where <type> is one of:");
     puts("--hex 256 bit hex string");
     puts("--ascii 64 character ascii printable string");
@@ -127,7 +131,7 @@ bool getPassword(char *set, unsigned char setLength, char *password, unsigned in
 
 int main(int argc, char* argv[])
 {
-    if(argc != 2)
+    if(argc < 2)
     {
         showHelp();
         return EXIT_FAILURE;
@@ -135,48 +139,133 @@ int main(int argc, char* argv[])
 
     char set[255]; 
     unsigned char setlength = 0;
-    if(strncmp(argv[1],"--help", 6) == 0)
+    unsigned int numberOfLoops = 1;
+
+    bool isVerboseModeSet = false;
+    bool isPasswordTypeSet = false;
+    bool isLoopMode = false;
+
+    // loop through the switches...
+    for(int i = 1; i <= argc -1; ++i)
     {
-        showHelp();
-        return EXIT_SUCCESS;
+        if(strncmp(argv[i],"--help", 6) == 0)
+        {
+            showHelp();
+            return EXIT_SUCCESS;
+        }
+        else if(strncmp(argv[i], "--ascii", 7) == 0)
+        {
+            if(isPasswordTypeSet == false)
+            {
+                strcpy(set, "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
+                setlength = 94;
+                isPasswordTypeSet = true;
+            }
+            else
+            {
+                showHelp();
+                return EXIT_FAILURE;
+            }
+        }
+        else if(strncmp(argv[i], "--hex", 5) == 0)
+        {
+            if(isPasswordTypeSet == false)
+            {
+                strcpy(set, "ABCDEF0123456789");
+                setlength = 16;
+                isPasswordTypeSet = true;
+            }
+            else
+            {
+                showHelp();
+                return EXIT_FAILURE;
+            }
+        }
+        else if(strncmp(argv[i], "--alpha", 7) == 0)
+        {
+            if(isPasswordTypeSet == false)
+            {
+                strcpy(set, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+                setlength = 62;
+                isPasswordTypeSet = true;
+            }
+            else
+            {
+                showHelp();
+                return EXIT_FAILURE;
+            }
+        }
+        else if(strncmp(argv[i], "--verbose", 8) == 0)
+        {
+            if(isVerboseModeSet == false)
+            {
+                isVerboseModeSet = true;
+            }
+            else
+            {
+                showHelp();
+                return EXIT_FAILURE;
+            }
+        }
+        else if(strncmp(argv[i], "--password-count", 16) == 0) 
+        {
+            if(isLoopMode == false)
+            {
+                i++;
+                if(i >= argc)
+                {
+                    showHelp();
+                    return EXIT_FAILURE;
+                }
+                else
+                {
+                    isLoopMode = true;
+                    sscanf(argv[i], "%u", &numberOfLoops);
+                }
+            }
+            else
+            {
+                showHelp();
+                return EXIT_FAILURE;
+            }
+        }
+        else
+        {
+            showHelp();
+            return EXIT_FAILURE;
+        }
     }
-    else if(strncmp(argv[1], "--ascii", 7) == 0)
-    {
-        strcpy(set, "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
-        setlength = 94;
-    }
-    else if(strncmp(argv[1], "--hex", 5) == 0)
-    {
-        strcpy(set, "ABCDEF0123456789");
-        setlength = 16;
-    }
-    else if(strncmp(argv[1], "--alpha", 7) == 0)
-    {
-        strcpy(set, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-        setlength = 62;
-    }
-    else
+
+    // user didn't choose a password type, just a switch?
+    if(!isPasswordTypeSet)
     {
         showHelp();
         return EXIT_FAILURE;
     }
 
     char result[PASSWORD_LENGTH];
-    puts("Getting random data...");
-    if(getPassword(set, setlength, result, PASSWORD_LENGTH))
+    
+    for(int i = 0; i < numberOfLoops; i++)
     {
-        for(int i = 0; i < PASSWORD_LENGTH; i++)
+        if(isVerboseModeSet)
         {
-            printf("%c", result[i]);
+            puts("Getting random data...");
         }
-        printf("\n");
+        if(getPassword(set, setlength, result, PASSWORD_LENGTH))
+        {
+            for(int j = 0; j < PASSWORD_LENGTH; j++)
+            {
+                printf("%c", result[j]);
+            }
+            printf("\n");
+        }
+        else
+        {
+            fprintf(stderr, "Error getting random data.\n");
+            return 2;
+        }
+        memset(result, 0, PASSWORD_LENGTH);
     }
-    else
-    {
-        fprintf(stderr, "Error getting random data.\n");
-        return 2;
-    }
-    memset(result, 0, PASSWORD_LENGTH);
     return EXIT_SUCCESS;
 }
 
