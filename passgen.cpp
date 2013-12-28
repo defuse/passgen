@@ -63,15 +63,16 @@ bool getRandom(unsigned char* buffer, unsigned int bufferlength, bool quickMode)
 
 void showHelp()
 {
-    puts("Usage: passgen <type> <optional arguments");
+    puts("Usage: passgen <type> <optional arguments>");
     puts("Where <type> is one of:");
-    puts("--hex OR -h 256 bit hex string");
-    puts("--ascii OR -t 64 character ascii printable string");
-    puts("--alpha OR -a 64 character alpha-numeric string");
-    puts("--help OR -h show this page");
-    puts("Where <optional arguments> can be");
-    puts("--quick OR -q (Faster password generating at a cost of less randomness unix/linux only)");
-    puts("--password-count # OR -p #");
+    puts("  -h, --hex\t\t\t\t64-character hex string");
+    puts("  -t, --ascii\t\t\t\t64-character ASCII string");
+    puts("  -a, --alpha\t\t\t\t64-character alpha-numeric string");
+    puts("  -h, --help\t\t\t\tShow this help menu");
+
+    puts("Where <optional arguments> can be:");
+    puts("  -q, --quick\t\t\t\tUse /dev/urandom instead of /dev/random");
+    puts("  -p, --password-count COUNT\t\tGenerate COUNT passwords");
 }
 
 inline unsigned char getMinimalBitMask(unsigned char toRepresent)
