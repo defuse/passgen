@@ -132,7 +132,12 @@ bool getPassword(char *set, unsigned char setLength, char *password, unsigned in
         if(bufIdx >= bufLen)
         {
             if(!getRandom(rndBuf, bufLen, quickMode))
+            {
+                memset(rndBuf, 0, bufLen);
+                free(rndBuf);
                 return false;
+            }
+            
             bufIdx = 0;
         }
 
@@ -146,7 +151,7 @@ bool getPassword(char *set, unsigned char setLength, char *password, unsigned in
             i++;
         }
     }
-    memset(rndBuf, 0xFF, bufLen);
+    memset(rndBuf, 0, bufLen);
     free(rndBuf);
     return true;
 }
