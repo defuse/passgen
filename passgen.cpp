@@ -65,7 +65,7 @@ void showHelp()
 {
     puts("Usage: passgen <type> <optional arguments>");
     puts("Where <type> is one of:");
-    puts("  -h, --hex\t\t\t\t64-character hex string");
+    puts("  -n, --hex\t\t\t\t64-character hex string");
     puts("  -t, --ascii\t\t\t\t64-character ASCII string");
     puts("  -a, --alpha\t\t\t\t64-character alpha-numeric string");
     puts("  -h, --help\t\t\t\tShow this help menu");
