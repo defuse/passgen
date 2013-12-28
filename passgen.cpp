@@ -21,8 +21,6 @@
  * 3. Added quick mode for linux/unix oses
  * 4. There is now proper command line parsing
  *
- * Compiling with Visual C++:
- *  cl.exe passgen.cpp advapi32.lib
  * Compiling with G++:
  *  g++ passgen.cpp -o passgen
  */
