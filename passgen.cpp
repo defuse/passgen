@@ -30,11 +30,6 @@
 #include <string.h>
 #include <getopt.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#include <wincrypt.h>
-#endif
-
 #define PASSWORD_LENGTH 64
 #define RANDOM_DATA_ERROR 3
 #define NO_PASSWORD_COUNT 4
@@ -46,14 +41,6 @@
  */
 bool getRandom(unsigned char* buffer, unsigned int bufferlength, bool quickMode)
 {
-#ifdef _WIN32
-    HCRYPTPROV hCryptCtx = NULL;
-    CryptAcquireContext(&hCryptCtx, NULL, MS_DEF_PROV, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
-    if(hCryptCtx == NULL)
-        return false;
-    CryptGenRandom(hCryptCtx, bufferlength, buffer);
-    CryptReleaseContext(hCryptCtx, 0);
-#else
     FILE* random;
 
     if(quickMode)
@@ -71,7 +58,6 @@ bool getRandom(unsigned char* buffer, unsigned int bufferlength, bool quickMode)
     if(read != bufferlength)
         return false;
     fclose(random);
-#endif
     return true;
 }
 
