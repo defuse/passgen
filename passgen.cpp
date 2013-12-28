@@ -65,9 +65,9 @@ void showHelp()
 {
     puts("Usage: passgen <type> <optional arguments>");
     puts("Where <type> is one of:");
-    puts("  -n, --hex\t\t\t\t64-character hex string");
-    puts("  -t, --ascii\t\t\t\t64-character ASCII string");
-    puts("  -a, --alpha\t\t\t\t64-character alpha-numeric string");
+    puts("  -x, --hex\t\t\t\t64-character hex string");
+    puts("  -a, --ascii\t\t\t\t64-character ASCII string");
+    puts("  -n, --alpha\t\t\t\t64-character alpha-numeric string");
     puts("  -h, --help\t\t\t\tShow this help menu");
 
     puts("Where <optional arguments> can be:");
@@ -151,9 +151,9 @@ int main(int argc, char* argv[])
     static struct option long_options[] = {
         {"help",              no_argument,       NULL, 'h' },
         {"quick",             no_argument,       NULL, 'q' },
-        {"hex",               no_argument,       NULL, 'n' },
-        {"alpha",             no_argument,       NULL, 'a' },
-        {"ascii",             no_argument,       NULL, 't' },
+        {"hex",               no_argument,       NULL, 'x' },
+        {"alpha",             no_argument,       NULL, 'n' },
+        {"ascii",             no_argument,       NULL, 'a' },
         {"password-count",    required_argument, NULL, 'p' },
         {NULL, 0, NULL, 0 }
     };
@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
     bool isPasswordTypeSet = false;
     bool isPasswordCountSet = false;
     bool quickMode = false;
-    while((currentOptChar = getopt_long(argc, argv, "hqnatp:", long_options, &optIndex)) != -1)
+    while((currentOptChar = getopt_long(argc, argv, "hqxnap:", long_options, &optIndex)) != -1)
     {
             switch(currentOptChar)
             {
@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
                         return EXIT_FAILURE;
                     }
                     break; 
-                case 'n': // hex password 
+                case 'x': // hex password 
                     if(isPasswordTypeSet != true)
                     {
                         strcpy(set, "ABCDEF0123456789");
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
                         return EXIT_FAILURE;
                     }
                     break;
-                case 'a': // alpha password
+                case 'n': // alpha password
                     if(isPasswordTypeSet != true)
                     {
                         strcpy(set, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
@@ -211,7 +211,7 @@ int main(int argc, char* argv[])
                         return EXIT_FAILURE;
                     }
                     break;
-                case 't': // ascii password
+                case 'a': // ascii password
                     if(isPasswordTypeSet != true)
                     {
                         strcpy(set, "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
