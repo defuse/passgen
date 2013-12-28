@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Version 3 by Stephen Chavez (dicesoft.net)
+ * Modifications by Stephen Chavez (dicesoft.net)
  * 1. Better piping support for linux/unix oses
  * 2. Added password-count option
- * 3. Added quick mode for linux/uxix oses
+ * 3. Added quick mode for linux/unix oses
  * 4. There is now proper command line parsing
  *
  * Compiling with Visual C++:
@@ -26,6 +26,7 @@
  * Compiling with G++:
  *  g++ passgen.cpp -o passgen
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,13 +58,13 @@ bool getRandom(unsigned char* buffer, unsigned int bufferlength, bool quickMode)
 #else
     FILE* random;
 
-    if(quickMode == false)
+    if(quickMode)
     {
-        random = fopen("/dev/random", "rb");
+        random = fopen("/dev/urandom", "rb");
     }
     else
     {
-        random = fopen("/dev/urandom", "rb");
+        random = fopen("/dev/random", "rb");
     }
 
     if(random == NULL)
@@ -84,7 +85,7 @@ void showHelp()
     puts("--ascii OR -t 64 character ascii printable string");
     puts("--alpha OR -a 64 character alpha-numeric string");
     puts("--help OR -h show this page");
-    puts("Where <optional arguments> can be one or both of");
+    puts("Where <optional arguments> can be");
     puts("--quick OR -q (Faster password generating at a cost of less randomness unix/linux only)");
     puts("--password-count # OR -p #");
 }
@@ -118,7 +119,11 @@ bool getPassword(char *set, unsigned char setLength, char *password, unsigned in
     unsigned char bitMask = getMinimalBitMask(setLength - 1);
 
     if(!getRandom(rndBuf, bufLen, quickMode))
+    {
+        memset(rndBuf, 0, bufLen);
+        free(rndBuf);
         return false;
+    }
 
     int i = 0;
     while(i < passwordLength)
@@ -168,69 +173,92 @@ int main(int argc, char* argv[])
 
     char set[255]; 
     unsigned char setLength = 0;
-    unsigned int numberOfLoops = 1;
+    unsigned int numberOfPasswords = 1;
     bool isPasswordTypeSet = false;
     bool isPasswordCountSet = false;
     bool quickMode = false;
-
-        while((currentOptChar = getopt_long(argc, argv, "hqnatp:", long_options, &optIndex)) != -1)
-        {
-                switch(currentOptChar)
-                {
-                    case 'h': // help 
+    while((currentOptChar = getopt_long(argc, argv, "hqnatp:", long_options, &optIndex)) != -1)
+    {
+            switch(currentOptChar)
+            {
+                case 'h': // help 
+                    showHelp();
+                    return EXIT_SUCCESS;
+                case 'q': // quick mode
+                    if(quickMode != true)
+                    {
+                        quickMode = true;
+                    }
+                    else
+                    {
                         showHelp();
-                        return EXIT_SUCCESS;
-                    case 'q': // quick mode
-                        if(quickMode != true)
-                        {
-                            quickMode = true;
-                        }
-                        break; 
-                    case 'n': // hex password 
-                        if(isPasswordTypeSet != true)
-                        {
-                            strcpy(set, "ABCDEF0123456789");
-                            setLength = 16;
-                            isPasswordTypeSet = true;
-                        }
-                        break;
-                    case 'a': // alpha password
-                        if(isPasswordTypeSet != true)
-                        {
-                            strcpy(set, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-                            setLength = 62;
-                            isPasswordTypeSet = true;
-                        }
-                        break;
-                    case 't': // ascii password
+                        return EXIT_FAILURE;
+                    }
+                    break; 
+                case 'n': // hex password 
+                    if(isPasswordTypeSet != true)
+                    {
+                        strcpy(set, "ABCDEF0123456789");
+                        setLength = 16;
+                        isPasswordTypeSet = true;
+                    }
+                    else
+                    {
+                        showHelp();
+                        return EXIT_FAILURE;
+                    }
+                    break;
+                case 'a': // alpha password
+                    if(isPasswordTypeSet != true)
+                    {
+                        strcpy(set, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+                        setLength = 62;
+                        isPasswordTypeSet = true;
+                    }
+                    else
+                    {
+                        showHelp();
+                        return EXIT_FAILURE;
+                    }
+                    break;
+                case 't': // ascii password
+                    if(isPasswordTypeSet != true)
+                    {
                         strcpy(set, "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
                         setLength = 94;
                         isPasswordTypeSet = true;
-                        break;
-                    case 'p': // password-count 
-                        if(isPasswordCountSet != true)
+                    }
+                    else
+                    {
+                        showHelp();
+                        return EXIT_FAILURE;
+                    }
+                    break;
+                case 'p': // password-count 
+                    if(isPasswordCountSet != true)
+                    {
+                        if(sscanf(optarg, "%u", &numberOfPasswords) > 0)
                         {
-                            if(sscanf(optarg, "%u", &numberOfLoops) > 0)
-                            {
-                                isPasswordCountSet = true;
-                            }
-                            else
-                            {
-                                showHelp();
-                                return EXIT_FAILURE;
-                            }
+                            isPasswordCountSet = true;
                         }
-                        else 
-                        { 
+                        else
+                        {
                             showHelp();
                             return EXIT_FAILURE;
                         }
-                        break;
-                    default: // unknown opt
+                    }
+                    else 
+                    { 
                         showHelp();
                         return EXIT_FAILURE;
-                }
-        }
+                    }
+                    break;
+                default: // unknown opt
+                    showHelp();
+                    return EXIT_FAILURE;
+            }
+    }
+    
     // user didn't choose a password type, just a switch?
     if(!isPasswordTypeSet)
     {
@@ -240,7 +268,7 @@ int main(int argc, char* argv[])
 
     char result[PASSWORD_LENGTH];
     
-    for(int i = 0; i < numberOfLoops; i++)
+    for(int i = 0; i < numberOfPasswords; i++)
     {
         if(getPassword(set, setLength, result, PASSWORD_LENGTH, quickMode))
         {
