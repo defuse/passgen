@@ -18,7 +18,7 @@
  * Modifications by Stephen Chavez (dicesoft.net)
  * 1. Better piping support for linux/unix oses
  * 2. Added password-count option
- * 3. Added quick mode for linux/unix oses
+ * 3. Added quick mode for linux/unix oses (Now removed)
  * 4. There is now proper command line parsing
  *
  * Compiling with G++:
@@ -42,19 +42,11 @@
  * buffer - gets filled with random bytes.
  * bufferlength - length of buffer
  */
-// TODO: get rid of 'quickMode' and just always use /dev/Urandom
-bool getRandom(unsigned char* buffer, unsigned int bufferlength, bool quickMode)
+bool getRandom(unsigned char* buffer, unsigned int bufferlength)
 {
     FILE* random;
 
-    if(quickMode)
-    {
-        random = fopen("/dev/urandom", "rb");
-    }
-    else
-    {
-        random = fopen("/dev/random", "rb");
-    }
+    random = fopen("/dev/urandom", "rb");
 
     if(random == NULL)
         return false;
@@ -67,7 +59,7 @@ bool getRandom(unsigned char* buffer, unsigned int bufferlength, bool quickMode)
 
 unsigned long getRandomUnsignedLong() {
     unsigned long random = 0;
-    getRandom((unsigned char*)&random, sizeof(random), true);
+    getRandom((unsigned char*)&random, sizeof(random));
     return random;
 }
 
@@ -82,7 +74,6 @@ void showHelp()
     puts("  -h, --help\t\t\t\tShow this help menu");
 
     puts("Where <optional arguments> can be:");
-    puts("  -q, --quick\t\t\t\tUse /dev/urandom instead of /dev/random");
     puts("  -p, --password-count COUNT\t\tGenerate COUNT passwords");
 }
 
@@ -117,7 +108,7 @@ inline unsigned long getMinimalBitMaskForInteger(unsigned long toRepresent)
     return mask;
 }
 
-bool getPassword(char *set, unsigned char setLength, char *password, unsigned int passwordLength, bool quickMode)
+bool getPassword(char *set, unsigned char setLength, char *password, unsigned int passwordLength)
 {
     unsigned int bufLen = passwordLength; 
     int bufIdx = 0;
@@ -125,7 +116,7 @@ bool getPassword(char *set, unsigned char setLength, char *password, unsigned in
 
     unsigned char bitMask = getMinimalBitMask(setLength - 1);
 
-    if(!getRandom(rndBuf, bufLen, quickMode))
+    if(!getRandom(rndBuf, bufLen))
     {
         memset(rndBuf, 0, bufLen);
         free(rndBuf);
@@ -138,7 +129,7 @@ bool getPassword(char *set, unsigned char setLength, char *password, unsigned in
         // Read more random bytes if necessary.
         if(bufIdx >= bufLen)
         {
-            if(!getRandom(rndBuf, bufLen, quickMode))
+            if(!getRandom(rndBuf, bufLen))
             {
                 memset(rndBuf, 0, bufLen);
                 free(rndBuf);
@@ -190,7 +181,6 @@ int main(int argc, char* argv[])
     }
     static struct option long_options[] = {
         {"help",              no_argument,       NULL, 'h' },
-        {"quick",             no_argument,       NULL, 'q' },
         {"hex",               no_argument,       NULL, 'x' },
         {"alpha",             no_argument,       NULL, 'n' },
         {"ascii",             no_argument,       NULL, 'a' },
@@ -207,25 +197,13 @@ int main(int argc, char* argv[])
     unsigned int numberOfPasswords = 1;
     bool isPasswordTypeSet = false;
     bool isPasswordCountSet = false;
-    bool quickMode = false;
-    while((currentOptChar = getopt_long(argc, argv, "hqxnwap:", long_options, &optIndex)) != -1)
+    while((currentOptChar = getopt_long(argc, argv, "hxnwap:", long_options, &optIndex)) != -1)
     {
             switch(currentOptChar)
             {
                 case 'h': // help 
                     showHelp();
                     return EXIT_SUCCESS;
-                case 'q': // quick mode
-                    if(quickMode != true)
-                    {
-                        quickMode = true;
-                    }
-                    else
-                    {
-                        showHelp();
-                        return EXIT_FAILURE;
-                    }
-                    break; 
                 case 'x': // hex password 
                     if(isPasswordTypeSet != true)
                     {
@@ -305,7 +283,7 @@ int main(int argc, char* argv[])
     
     for(int i = 0; i < numberOfPasswords; i++)
     {
-        if(getPassword(set, setLength, result, PASSWORD_LENGTH, quickMode))
+        if(getPassword(set, setLength, result, PASSWORD_LENGTH))
         {
             for(int j = 0; j < PASSWORD_LENGTH; j++)
             {
