@@ -21,8 +21,6 @@
  * 3. Added quick mode for linux/unix oses (Now removed)
  * 4. There is now proper command line parsing
  *
- * Compiling with G++:
- *  g++ passgen.cpp -o passgen
  */
 
 #include <stdio.h>
