@@ -70,6 +70,7 @@ bool getRandomUnsignedLong(unsigned long *random) {
 void showHelp()
 {
     puts("Usage: passgen <type> <optional arguments>");
+    puts("WARNING: If automated, you MUST check that the exit status is 0.");
     puts("Where <type> is one of:");
     puts("  -x, --hex\t\t\t\t64-character hex string");
     puts("  -a, --ascii\t\t\t\t64-character ASCII string");
@@ -158,14 +159,13 @@ bool getPassword(char *set, unsigned char setLength, char *password, unsigned in
     return true;
 }
 
-void showRandomWords()
+bool showRandomWords()
 {
     unsigned long random = 0;
     unsigned int words_printed = 0;
     while (words_printed < WORD_COUNT) {
         if (!getRandomUnsignedLong(&random)) {
-            printf("ERROR: RANDOMNESS FAILURE. DO NOT USE.\n");
-            exit(1);
+            return false;
         }
         random = random & getMinimalBitMaskForInteger(WORDLIST_WORD_COUNT);
         if (random < WORDLIST_WORD_COUNT) {
@@ -178,6 +178,7 @@ void showRandomWords()
     }
     memset(&random, 0, sizeof(random));
     printf("\n");
+    return true;
 }
 
 int main(int argc, char* argv[])
@@ -205,6 +206,7 @@ int main(int argc, char* argv[])
     unsigned int numberOfPasswords = 1;
     bool isPasswordTypeSet = false;
     bool isPasswordCountSet = false;
+    bool generateWordPassword = false;
     while((currentOptChar = getopt_long(argc, argv, "hxnwap:", long_options, &optIndex)) != -1)
     {
             switch(currentOptChar)
@@ -252,8 +254,13 @@ int main(int argc, char* argv[])
                     }
                     break;
                 case 'w': // random words
-                    showRandomWords();
-                    return EXIT_SUCCESS;
+                    if (isPasswordTypeSet != true) {
+                        generateWordPassword = true;
+                        isPasswordTypeSet = true;
+                    } else {
+                        showHelp();
+                        return EXIT_FAILURE;
+                    }
                     break;
                 case 'p': // password-count 
                     if(isPasswordCountSet != true)
@@ -287,25 +294,35 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    char result[PASSWORD_LENGTH];
-    
-    for(int i = 0; i < numberOfPasswords; i++)
-    {
-        if(getPassword(set, setLength, result, PASSWORD_LENGTH))
-        {
-            for(int j = 0; j < PASSWORD_LENGTH; j++)
-            {
-                printf("%c", result[j]);
+    if (generateWordPassword) {
+        for (int i = 0; i < numberOfPasswords; i++) {
+            if (!showRandomWords()) {
+                fprintf(stderr, "Error getting random data.\n");
+                return RANDOM_DATA_ERROR;
             }
-            printf("\n");
         }
-        else
+    } else {
+        char result[PASSWORD_LENGTH];
+        
+        for(int i = 0; i < numberOfPasswords; i++)
         {
-            fprintf(stderr, "Error getting random data.\n");
-            return RANDOM_DATA_ERROR;
+            if(getPassword(set, setLength, result, PASSWORD_LENGTH))
+            {
+                for(int j = 0; j < PASSWORD_LENGTH; j++)
+                {
+                    printf("%c", result[j]);
+                }
+                printf("\n");
+            }
+            else
+            {
+                fprintf(stderr, "Error getting random data.\n");
+                return RANDOM_DATA_ERROR;
+            }
+            memset(result, 0, PASSWORD_LENGTH);
         }
-        memset(result, 0, PASSWORD_LENGTH);
     }
+
     return EXIT_SUCCESS;
 }
 
