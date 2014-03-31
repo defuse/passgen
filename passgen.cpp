@@ -1,6 +1,8 @@
-/* Command Line Password Generator for Windows and UNIX-like systems.
+/*
+ * Command-line password generator tool.
  * Copyright (C) 2011  Taylor Hornby
- * https://defuse.ca/ 
+ * Web: https://defuse.ca/passgen.htm
+ * GitHub: https://github.com/defuse/passgen
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +17,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Modifications by Stephen Chavez (dicesoft.net)
+ * Modifications made by Stephen Chavez (dicesoft.net)
  * 1. Better piping support for linux/unix oses
  * 2. Added password-count option
- * 3. Added quick mode for linux/unix oses (Now removed)
+ * 3. Added quick mode for linux/unix oses (now removed - /dev/urandom only)
  * 4. There is now proper command line parsing
  *
  */
@@ -28,6 +30,7 @@
 #include <string.h>
 #include <getopt.h>
 
+/* Automatically generated file containing the wordlist array. */
 #include "wordlist.hpp"
 
 #define PASSWORD_LENGTH 64
