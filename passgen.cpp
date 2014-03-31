@@ -42,6 +42,7 @@
  * buffer - gets filled with random bytes.
  * bufferlength - length of buffer
  */
+// TODO: get rid of 'quickMode' and just always use /dev/Urandom
 bool getRandom(unsigned char* buffer, unsigned int bufferlength, bool quickMode)
 {
     FILE* random;
@@ -64,6 +65,12 @@ bool getRandom(unsigned char* buffer, unsigned int bufferlength, bool quickMode)
     return true;
 }
 
+unsigned long getRandomUnsignedLong() {
+    unsigned long random = 0;
+    getRandom((unsigned char*)&random, sizeof(random), true);
+    return random;
+}
+
 void showHelp()
 {
     puts("Usage: passgen <type> <optional arguments>");
@@ -71,7 +78,7 @@ void showHelp()
     puts("  -x, --hex\t\t\t\t64-character hex string");
     puts("  -a, --ascii\t\t\t\t64-character ASCII string");
     puts("  -n, --alpha\t\t\t\t64-character alpha-numeric string");
-    printf("  -w, --words\t\t\t\t%d random words\n", WORD_COUNT);
+    printf("  -w, --words\t\t\t\t%d random words from a list of %d\n", WORD_COUNT, WORDLIST_WORD_COUNT);
     puts("  -h, --help\t\t\t\tShow this help menu");
 
     puts("Where <optional arguments> can be:");
@@ -97,6 +104,17 @@ inline unsigned char getMinimalBitMask(unsigned char toRepresent)
         return 0x7F;
     else
         return 0xFF;
+}
+
+inline unsigned long getMinimalBitMaskForInteger(unsigned long toRepresent)
+{
+    unsigned long mask = 0;
+    unsigned int bit = 0;
+    while (mask <= toRepresent)
+    {
+        mask = (mask << 1) | 1;
+    }
+    return mask;
 }
 
 bool getPassword(char *set, unsigned char setLength, char *password, unsigned int passwordLength, bool quickMode)
@@ -147,7 +165,20 @@ bool getPassword(char *set, unsigned char setLength, char *password, unsigned in
 
 void showRandomWords()
 {
-
+    unsigned long random = 0;
+    unsigned int words_printed = 0;
+    while (words_printed < WORD_COUNT) {
+        random = getRandomUnsignedLong();
+        random = random & getMinimalBitMaskForInteger(WORDLIST_WORD_COUNT);
+        if (random < WORDLIST_WORD_COUNT) {
+            printf("%s", words[random]);
+            if (words_printed != WORD_COUNT - 1) {
+                printf(".");
+            }
+            words_printed++;
+        }
+    }
+    printf("\n");
 }
 
 int main(int argc, char* argv[])
@@ -177,7 +208,7 @@ int main(int argc, char* argv[])
     bool isPasswordTypeSet = false;
     bool isPasswordCountSet = false;
     bool quickMode = false;
-    while((currentOptChar = getopt_long(argc, argv, "hqxnap:", long_options, &optIndex)) != -1)
+    while((currentOptChar = getopt_long(argc, argv, "hqxnwap:", long_options, &optIndex)) != -1)
     {
             switch(currentOptChar)
             {
