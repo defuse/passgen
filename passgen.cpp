@@ -47,20 +47,24 @@ bool getRandom(unsigned char* buffer, unsigned int bufferlength)
     FILE* random;
 
     random = fopen("/dev/urandom", "rb");
+    if(random == NULL) {
+        return false;
+    }
 
-    if(random == NULL)
-        return false;
     unsigned int read = fread(buffer, sizeof(unsigned char), bufferlength, random);
-    if(read != bufferlength)
+    if(read != bufferlength) {
         return false;
-    fclose(random);
+    }
+
+    if (fclose(random) != 0) {
+        return false;
+    }
+
     return true;
 }
 
-unsigned long getRandomUnsignedLong() {
-    unsigned long random = 0;
-    getRandom((unsigned char*)&random, sizeof(random));
-    return random;
+bool getRandomUnsignedLong(unsigned long *random) {
+    return getRandom((unsigned char*)random, sizeof(random));
 }
 
 void showHelp()
@@ -159,7 +163,10 @@ void showRandomWords()
     unsigned long random = 0;
     unsigned int words_printed = 0;
     while (words_printed < WORD_COUNT) {
-        random = getRandomUnsignedLong();
+        if (!getRandomUnsignedLong(&random)) {
+            printf("ERROR: RANDOMNESS FAILURE. DO NOT USE.\n");
+            exit(1);
+        }
         random = random & getMinimalBitMaskForInteger(WORDLIST_WORD_COUNT);
         if (random < WORDLIST_WORD_COUNT) {
             printf("%s", words[random]);
