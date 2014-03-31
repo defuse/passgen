@@ -83,44 +83,24 @@ void showHelp()
     puts("  -p, --password-count COUNT\t\tGenerate COUNT passwords");
 }
 
-inline unsigned char getMinimalBitMask(unsigned char toRepresent)
-{
-    if(toRepresent <= 0x01)
-        return 0x01;
-    else if(toRepresent <= 0x03)
-        return 0x03;
-    else if(toRepresent <= 0x07)
-        return 0x07;
-    else if(toRepresent <= 0x0F)
-        return 0x0F;
-    else if(toRepresent <= 0x1F)
-        return 0x1F;
-    else if(toRepresent <= 0x3F)
-        return 0x3F;
-    else if(toRepresent <= 0x7F)
-        return 0x7F;
-    else
-        return 0xFF;
-}
-
-inline unsigned long getMinimalBitMaskForInteger(unsigned long toRepresent)
+inline unsigned long getMinimalBitMask(unsigned long toRepresent)
 {
     unsigned long mask = 0;
     unsigned int bit = 0;
-    while (mask <= toRepresent)
+    while (mask < toRepresent)
     {
         mask = (mask << 1) | 1;
     }
     return mask;
 }
 
-bool getPassword(char *set, unsigned char setLength, char *password, unsigned int passwordLength)
+bool getPassword(const char *set, unsigned char setLength, char *password, unsigned int passwordLength)
 {
     unsigned int bufLen = passwordLength; 
     int bufIdx = 0;
     unsigned char *rndBuf = (unsigned char*)malloc(bufLen);
 
-    unsigned char bitMask = getMinimalBitMask(setLength - 1);
+    unsigned char bitMask = getMinimalBitMask(setLength - 1) & 0xFF;
 
     if(!getRandom(rndBuf, bufLen))
     {
@@ -168,7 +148,7 @@ bool showRandomWords()
         if (!getRandomUnsignedLong(&random)) {
             return false;
         }
-        random = random & getMinimalBitMaskForInteger(WORDLIST_WORD_COUNT);
+        random = random & getMinimalBitMask(WORDLIST_WORD_COUNT);
         if (random < WORDLIST_WORD_COUNT) {
             printf("%s", words[random]);
             if (words_printed != WORD_COUNT - 1) {
