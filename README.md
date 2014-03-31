@@ -10,7 +10,7 @@ It supports generating passwords with characters chosen from printable ASCII,
 alphanumeric, and hex characters, as well as a string of random words.
 
 Examples
-=========
+--------
 
     $ passgen --ascii
     |;aeQ;_mLh$7!eLVtm3MUm|068El?<Va>)i=IK#+uv&{gN+}18bNp:BCuq[^,"B~
