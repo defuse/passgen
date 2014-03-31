@@ -64,7 +64,7 @@ bool getRandom(unsigned char* buffer, unsigned int bufferlength)
 }
 
 bool getRandomUnsignedLong(unsigned long *random) {
-    return getRandom((unsigned char*)random, sizeof(random));
+    return getRandom((unsigned char*)random, sizeof(unsigned long));
 }
 
 void showHelp()
@@ -176,6 +176,7 @@ void showRandomWords()
             words_printed++;
         }
     }
+    memset(&random, 0, sizeof(random));
     printf("\n");
 }
 
