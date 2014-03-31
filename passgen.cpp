@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include <limits.h>
 
 /* Automatically generated file containing the wordlist array. */
 #include "wordlist.hpp"
@@ -162,6 +163,64 @@ bool showRandomWords()
     return true;
 }
 
+bool runtimeTests()
+{
+    /* Make sure the random number generator isn't *completely* broken. */
+    unsigned char buffer[16];
+    memset(buffer, 0, sizeof(buffer));
+    if (!getRandom(buffer, sizeof(buffer))) {
+        return false;
+    }
+    bool all_zero = true;
+    for (int i = 0; i < sizeof(buffer); i++) {
+        if (buffer[i] != 0) {
+            all_zero = false;
+            break;
+        }
+    }
+    if (all_zero) {
+        return false;
+    }
+
+    /* Make sure the random long generator isn't *completely* broken. */
+    unsigned long test = 0;
+    if (!getRandomUnsignedLong(&test)) {
+        return false;
+    }
+    if (test == 0) {
+        return false;
+    }
+
+    /* Test getMinimalBitMask around boundaries. */
+    if (getMinimalBitMask(0) != 0) { return false; }
+    if (getMinimalBitMask(1) != 1) { return false; }
+    if (getMinimalBitMask(2) != 3) { return false; }
+    if (getMinimalBitMask(3) != 3) { return false; }
+    if (getMinimalBitMask(4) != 7) { return false; }
+    if (getMinimalBitMask(5) != 7) { return false; }
+    if (getMinimalBitMask(6) != 7) { return false; }
+    if (getMinimalBitMask(7) != 7) { return false; }
+    if (getMinimalBitMask(8) != 15) { return false; }
+
+    /* Test getMinimalBitMask around weird values. */
+    if (getMinimalBitMask(ULONG_MAX) != ULONG_MAX) { return false; }
+    if (getMinimalBitMask(ULONG_MAX - 1) != ULONG_MAX) { return false; }
+
+    char buffer2[128];
+    getPassword("AB", 2, buffer2, sizeof(buffer2));
+    unsigned int a_count = 0, b_count = 0;
+    for (int i = 0; i < sizeof(buffer2); i++) {
+        if (buffer2[i] == 'A') { a_count++; }
+        else if (buffer2[i] == 'B') { b_count++; }
+        else { return false; }
+    }
+    if (a_count == 0 || b_count == 0) {
+        return false;
+    }
+
+    return true;
+}
+
 int main(int argc, char* argv[])
 {
     if(argc < 2)
@@ -272,6 +331,11 @@ int main(int argc, char* argv[])
     if(!isPasswordTypeSet)
     {
         showHelp();
+        return EXIT_FAILURE;
+    }
+
+    if (!runtimeTests()) {
+        fprintf(stderr, "ERROR: Runtime self-tests failed. SOMETHING IS WRONG\n");
         return EXIT_FAILURE;
     }
 
