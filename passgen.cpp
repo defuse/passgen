@@ -161,7 +161,7 @@ bool showRandomWords()
         if (!getRandomUnsignedLong(&random)) {
             return false;
         }
-        random = random & getMinimalBitMask(WORDLIST_WORD_COUNT);
+        random = random & getMinimalBitMask(WORDLIST_WORD_COUNT - 1);
         if (random < WORDLIST_WORD_COUNT) {
             printf("%s", words[random]);
             if (words_printed != WORD_COUNT - 1) {
