@@ -30,9 +30,12 @@
 #include <string.h>
 #include <getopt.h>
 
+#include "wordlist.hpp"
+
 #define PASSWORD_LENGTH 64
 #define RANDOM_DATA_ERROR 3
 #define NO_PASSWORD_COUNT 4
+#define WORD_COUNT 10
 
 /*
  * Fills 'buffer' with cryptographically secure random bytes.
@@ -68,6 +71,7 @@ void showHelp()
     puts("  -x, --hex\t\t\t\t64-character hex string");
     puts("  -a, --ascii\t\t\t\t64-character ASCII string");
     puts("  -n, --alpha\t\t\t\t64-character alpha-numeric string");
+    printf("  -w, --words\t\t\t\t%d random words\n", WORD_COUNT);
     puts("  -h, --help\t\t\t\tShow this help menu");
 
     puts("Where <optional arguments> can be:");
@@ -141,6 +145,11 @@ bool getPassword(char *set, unsigned char setLength, char *password, unsigned in
     return true;
 }
 
+void showRandomWords()
+{
+
+}
+
 int main(int argc, char* argv[])
 {
     if(argc < 2)
@@ -154,6 +163,7 @@ int main(int argc, char* argv[])
         {"hex",               no_argument,       NULL, 'x' },
         {"alpha",             no_argument,       NULL, 'n' },
         {"ascii",             no_argument,       NULL, 'a' },
+        {"words",             no_argument,       NULL, 'w' },
         {"password-count",    required_argument, NULL, 'p' },
         {NULL, 0, NULL, 0 }
     };
@@ -223,6 +233,10 @@ int main(int argc, char* argv[])
                         showHelp();
                         return EXIT_FAILURE;
                     }
+                    break;
+                case 'w': // random words
+                    showRandomWords();
+                    return EXIT_SUCCESS;
                     break;
                 case 'p': // password-count 
                     if(isPasswordCountSet != true)
