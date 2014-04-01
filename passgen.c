@@ -32,53 +32,53 @@
 #include <limits.h>
 
 /* Automatically generated file containing the wordlist array. */
-#include "wordlist.hpp"
+#include "wordlist.h"
 
 #define PASSWORD_LENGTH 64
 #define RANDOM_DATA_ERROR 3
 #define NO_PASSWORD_COUNT 4
 #define WORD_COUNT 10
 
-bool getRandom(void* buffer, unsigned long bufferlength);
-bool getRandomUnsignedLong(unsigned long *random);
-void showHelp();
-inline unsigned long getMinimalBitMask(unsigned long toRepresent);
-bool getPassword(const char *set, unsigned long setLength, char *password, unsigned long passwordLength);
-bool showRandomWords();
-bool runtimeTests();
+int getRandom(void* buffer, unsigned long bufferlength);
+int getRandomUnsignedLong(unsigned long *random);
+void showHelp(void);
+unsigned long getMinimalBitMask(unsigned long toRepresent);
+int getPassword(const char *set, unsigned long setLength, char *password, unsigned long passwordLength);
+int showRandomWords(void);
+int runtimeTests(void);
 
 /*
  * Fills 'buffer' with cryptographically secure random bytes.
  * buffer - gets filled with random bytes.
  * bufferlength - length of buffer
  */
-bool getRandom(void* buffer, unsigned long bufferlength)
+int getRandom(void* buffer, unsigned long bufferlength)
 {
     FILE* random;
 
     random = fopen("/dev/urandom", "rb");
     if(random == NULL) {
-        return false;
+        return 0;
     }
 
     size_t read = fread(buffer, sizeof(unsigned char), bufferlength, random);
     if(read != bufferlength) {
-        return false;
+        return 0;
     }
 
     if (fclose(random) != 0) {
-        return false;
+        return 0;
     }
 
-    return true;
+    return 1;
 }
 
-bool getRandomUnsignedLong(unsigned long *random)
+int getRandomUnsignedLong(unsigned long *random)
 {
     return getRandom(random, sizeof(unsigned long));
 }
 
-void showHelp()
+void showHelp(void)
 {
     puts("Usage: passgen <type> <optional arguments>");
     puts("WARNING: If automated, you MUST check that the exit status is 0.");
@@ -93,10 +93,9 @@ void showHelp()
     puts("  -p, --password-count COUNT\t\tGenerate COUNT passwords");
 }
 
-inline unsigned long getMinimalBitMask(unsigned long toRepresent)
+unsigned long getMinimalBitMask(unsigned long toRepresent)
 {
     unsigned long mask = 0;
-    unsigned int bit = 0;
     while (mask < toRepresent)
     {
         mask = (mask << 1) | 1;
@@ -104,14 +103,14 @@ inline unsigned long getMinimalBitMask(unsigned long toRepresent)
     return mask;
 }
 
-bool getPassword(const char *set, unsigned long setLength, char *password, unsigned long passwordLength)
+int getPassword(const char *set, unsigned long setLength, char *password, unsigned long passwordLength)
 {
     unsigned long bufLen = passwordLength; 
     unsigned long bufIdx = 0;
-    unsigned char *rndBuf = static_cast<unsigned char*>(malloc(bufLen));
+    unsigned char *rndBuf = (unsigned char*)malloc(bufLen);
 
     if (setLength < 1) {
-        return false;
+        return 0;
     }
     unsigned char bitMask = getMinimalBitMask(setLength - 1ul) & 0xFF;
 
@@ -119,7 +118,7 @@ bool getPassword(const char *set, unsigned long setLength, char *password, unsig
     {
         memset(rndBuf, 0, bufLen);
         free(rndBuf);
-        return false;
+        return 0;
     }
 
     unsigned long i = 0;
@@ -132,7 +131,7 @@ bool getPassword(const char *set, unsigned long setLength, char *password, unsig
             {
                 memset(rndBuf, 0, bufLen);
                 free(rndBuf);
-                return false;
+                return 0;
             }
             
             bufIdx = 0;
@@ -150,16 +149,16 @@ bool getPassword(const char *set, unsigned long setLength, char *password, unsig
     }
     memset(rndBuf, 0, bufLen);
     free(rndBuf);
-    return true;
+    return 1;
 }
 
-bool showRandomWords()
+int showRandomWords(void)
 {
     unsigned long random = 0;
     unsigned int words_printed = 0;
     while (words_printed < WORD_COUNT) {
         if (!getRandomUnsignedLong(&random)) {
-            return false;
+            return 0;
         }
         random = random & getMinimalBitMask(WORDLIST_WORD_COUNT - 1);
         if (random < WORDLIST_WORD_COUNT) {
@@ -172,51 +171,51 @@ bool showRandomWords()
     }
     memset(&random, 0, sizeof(random));
     printf("\n");
-    return true;
+    return 1;
 }
 
-bool runtimeTests()
+int runtimeTests(void)
 {
     /* Make sure the random number generator isn't *completely* broken. */
     unsigned char buffer[16];
     memset(buffer, 0, sizeof(buffer));
     if (!getRandom(buffer, sizeof(buffer))) {
-        return false;
+        return 0;
     }
-    bool all_zero = true;
+    int all_zero = 1;
     for (size_t i = 0; i < sizeof(buffer); i++) {
         if (buffer[i] != 0) {
-            all_zero = false;
+            all_zero = 0;
             break;
         }
     }
     if (all_zero) {
-        return false;
+        return 0;
     }
 
     /* Make sure the random long generator isn't *completely* broken. */
     unsigned long test = 0;
     if (!getRandomUnsignedLong(&test)) {
-        return false;
+        return 0;
     }
     if (test == 0) {
-        return false;
+        return 0;
     }
 
     /* Test getMinimalBitMask around boundaries. */
-    if (getMinimalBitMask(0) != 0) { return false; }
-    if (getMinimalBitMask(1) != 1) { return false; }
-    if (getMinimalBitMask(2) != 3) { return false; }
-    if (getMinimalBitMask(3) != 3) { return false; }
-    if (getMinimalBitMask(4) != 7) { return false; }
-    if (getMinimalBitMask(5) != 7) { return false; }
-    if (getMinimalBitMask(6) != 7) { return false; }
-    if (getMinimalBitMask(7) != 7) { return false; }
-    if (getMinimalBitMask(8) != 15) { return false; }
+    if (getMinimalBitMask(0) != 0) { return 0; }
+    if (getMinimalBitMask(1) != 1) { return 0; }
+    if (getMinimalBitMask(2) != 3) { return 0; }
+    if (getMinimalBitMask(3) != 3) { return 0; }
+    if (getMinimalBitMask(4) != 7) { return 0; }
+    if (getMinimalBitMask(5) != 7) { return 0; }
+    if (getMinimalBitMask(6) != 7) { return 0; }
+    if (getMinimalBitMask(7) != 7) { return 0; }
+    if (getMinimalBitMask(8) != 15) { return 0; }
 
     /* Test getMinimalBitMask around weird values. */
-    if (getMinimalBitMask(ULONG_MAX) != ULONG_MAX) { return false; }
-    if (getMinimalBitMask(ULONG_MAX - 1) != ULONG_MAX) { return false; }
+    if (getMinimalBitMask(ULONG_MAX) != ULONG_MAX) { return 0; }
+    if (getMinimalBitMask(ULONG_MAX - 1) != ULONG_MAX) { return 0; }
 
     char buffer2[128];
     getPassword("AB", 2, buffer2, sizeof(buffer2));
@@ -224,13 +223,13 @@ bool runtimeTests()
     for (size_t i = 0; i < sizeof(buffer2); i++) {
         if (buffer2[i] == 'A') { a_count++; }
         else if (buffer2[i] == 'B') { b_count++; }
-        else { return false; }
+        else { return 0; }
     }
     if (a_count == 0 || b_count == 0) {
-        return false;
+        return 0;
     }
 
-    return true;
+    return 1;
 }
 
 int main(int argc, char* argv[])
@@ -256,9 +255,9 @@ int main(int argc, char* argv[])
     char set[255]; 
     unsigned char setLength = 0;
     unsigned int numberOfPasswords = 1;
-    bool isPasswordTypeSet = false;
-    bool isPasswordCountSet = false;
-    bool generateWordPassword = false;
+    int isPasswordTypeSet = 0;
+    int isPasswordCountSet = 0;
+    int generateWordPassword = 0;
     while((currentOptChar = getopt_long(argc, argv, "hxnwap:", long_options, &optIndex)) != -1)
     {
             switch(currentOptChar)
@@ -267,11 +266,11 @@ int main(int argc, char* argv[])
                     showHelp();
                     return EXIT_SUCCESS;
                 case 'x': // hex password 
-                    if(isPasswordTypeSet != true)
+                    if(isPasswordTypeSet == 0)
                     {
                         strcpy(set, "ABCDEF0123456789");
                         setLength = 16;
-                        isPasswordTypeSet = true;
+                        isPasswordTypeSet = 1;
                     }
                     else
                     {
@@ -280,11 +279,11 @@ int main(int argc, char* argv[])
                     }
                     break;
                 case 'n': // alpha password
-                    if(isPasswordTypeSet != true)
+                    if(isPasswordTypeSet == 0)
                     {
                         strcpy(set, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
                         setLength = 62;
-                        isPasswordTypeSet = true;
+                        isPasswordTypeSet = 1;
                     }
                     else
                     {
@@ -293,11 +292,11 @@ int main(int argc, char* argv[])
                     }
                     break;
                 case 'a': // ascii password
-                    if(isPasswordTypeSet != true)
+                    if(isPasswordTypeSet == 0)
                     {
                         strcpy(set, "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
                         setLength = 94;
-                        isPasswordTypeSet = true;
+                        isPasswordTypeSet = 1;
                     }
                     else
                     {
@@ -306,20 +305,20 @@ int main(int argc, char* argv[])
                     }
                     break;
                 case 'w': // random words
-                    if (isPasswordTypeSet != true) {
-                        generateWordPassword = true;
-                        isPasswordTypeSet = true;
+                    if (isPasswordTypeSet == 0) {
+                        generateWordPassword = 1;
+                        isPasswordTypeSet = 1;
                     } else {
                         showHelp();
                         return EXIT_FAILURE;
                     }
                     break;
                 case 'p': // password-count 
-                    if(isPasswordCountSet != true)
+                    if(isPasswordCountSet == 0)
                     {
                         if(sscanf(optarg, "%u", &numberOfPasswords) > 0)
                         {
-                            isPasswordCountSet = true;
+                            isPasswordCountSet = 1;
                         }
                         else
                         {

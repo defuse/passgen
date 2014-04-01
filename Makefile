@@ -1,10 +1,12 @@
 
 # Source: http://stackoverflow.com/a/9862800
-LOTS_O_WARNINGS = -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Werror -Wno-unused
+#LOTS_O_WARNINGS = -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Werror -Wno-unused
 
-passgen: passgen.cpp wordlist.txt generate_wordlist.rb
-	ruby generate_wordlist.rb > wordlist.hpp
-	g++ $(LOTS_O_WARNINGS) passgen.cpp -o passgen
+LOTS_O_WARNINGS = -Werror -Wall -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual -Wpointer-arith -Wstrict-aliasing -Wformat=2 -Wmissing-declarations -Wmissing-include-dirs -Wno-unused-parameter -Wuninitialized -Wold-style-definition -Wstrict-prototypes -Wmissing-prototypes
+
+passgen: passgen.c wordlist.txt generate_wordlist.rb
+	ruby generate_wordlist.rb > wordlist.h
+	gcc -std=c99 $(LOTS_O_WARNINGS) passgen.c -o passgen
 
 # Rebuild the wordlist from the original source.
 wordlist:
@@ -17,5 +19,5 @@ wordlist:
 # The $$ instead of $ in the egrep command is a Make-escaped $.
 
 clean:
-	rm wordlist.hpp
+	rm wordlist.h
 	rm passgen
