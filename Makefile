@@ -24,5 +24,4 @@ test:
 	ruby test.rb
 
 clean:
-	rm wordlist.h
 	rm passgen
