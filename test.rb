@@ -66,7 +66,7 @@ output = `./passgen -w -p 213 2>&1`
 
 puts "Sorry, this will take a few minutes..."
 words = File.readlines("wordlist.txt").map { |w| w.strip }
-output = `./passgen -w -p #{words.count*4} 2>&1`
+output = `./passgen -w -p #{words.count} 2>&1`
 "Random Words".is_broken unless output.include?("."+words.first+".") and output.include?("."+words.last+".")
 
 puts "ALL TESTS PASS!"
