@@ -44,7 +44,7 @@
 int getRandom(void* buffer, unsigned long bufferlength);
 int getRandomUnsignedLong(unsigned long *random);
 void showHelp(void);
-unsigned long getMinimalBitMask(unsigned long toRepresent);
+unsigned long getLeastCoveringMask(unsigned long toRepresent);
 int getPassword(const char *set, unsigned long setLength, char *password, unsigned long passwordLength);
 int showRandomWords(void);
 int runtimeTests(void);
@@ -203,7 +203,7 @@ int getPassword(const char *set, unsigned long setLength, char *password, unsign
     if (setLength < 1) {
         return 0;
     }
-    unsigned char bitMask = getMinimalBitMask(setLength - 1ul) & 0xFF;
+    unsigned char bitMask = getLeastCoveringMask(setLength - 1ul) & 0xFF;
 
 
     if(!getRandom(rndBuf, bufLen)) {
@@ -248,7 +248,7 @@ int showRandomWords(void)
         if (!getRandomUnsignedLong(&random)) {
             return 0;
         }
-        random = random & getMinimalBitMask(WORDLIST_WORD_COUNT - 1);
+        random = random & getLeastCoveringMask(WORDLIST_WORD_COUNT - 1);
         if (random < WORDLIST_WORD_COUNT) {
             printf("%s", words[random]);
             if (words_printed != WORD_COUNT - 1) {
@@ -262,7 +262,7 @@ int showRandomWords(void)
     return 1;
 }
 
-unsigned long getMinimalBitMask(unsigned long toRepresent)
+unsigned long getLeastCoveringMask(unsigned long toRepresent)
 {
     unsigned long mask = 0;
     while (mask < toRepresent) {
@@ -330,20 +330,20 @@ int runtimeTests(void)
         return 0;
     }
 
-    /* Test getMinimalBitMask around boundaries. */
-    if (getMinimalBitMask(0) != 0) { return 0; }
-    if (getMinimalBitMask(1) != 1) { return 0; }
-    if (getMinimalBitMask(2) != 3) { return 0; }
-    if (getMinimalBitMask(3) != 3) { return 0; }
-    if (getMinimalBitMask(4) != 7) { return 0; }
-    if (getMinimalBitMask(5) != 7) { return 0; }
-    if (getMinimalBitMask(6) != 7) { return 0; }
-    if (getMinimalBitMask(7) != 7) { return 0; }
-    if (getMinimalBitMask(8) != 15) { return 0; }
+    /* Test getLeastCoveringMask around boundaries. */
+    if (getLeastCoveringMask(0) != 0) { return 0; }
+    if (getLeastCoveringMask(1) != 1) { return 0; }
+    if (getLeastCoveringMask(2) != 3) { return 0; }
+    if (getLeastCoveringMask(3) != 3) { return 0; }
+    if (getLeastCoveringMask(4) != 7) { return 0; }
+    if (getLeastCoveringMask(5) != 7) { return 0; }
+    if (getLeastCoveringMask(6) != 7) { return 0; }
+    if (getLeastCoveringMask(7) != 7) { return 0; }
+    if (getLeastCoveringMask(8) != 15) { return 0; }
 
-    /* Test getMinimalBitMask around weird values. */
-    if (getMinimalBitMask(ULONG_MAX) != ULONG_MAX) { return 0; }
-    if (getMinimalBitMask(ULONG_MAX - 1) != ULONG_MAX) { return 0; }
+    /* Test getLeastCoveringMask around weird values. */
+    if (getLeastCoveringMask(ULONG_MAX) != ULONG_MAX) { return 0; }
+    if (getLeastCoveringMask(ULONG_MAX - 1) != ULONG_MAX) { return 0; }
 
     char buffer2[128];
     getPassword("AB", 2, buffer2, sizeof(buffer2));
