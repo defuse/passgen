@@ -23,5 +23,8 @@ wordlist:
 test:
 	ruby test.rb
 
+stat_test:
+	ruby statistical_test.rb
+
 clean:
 	rm passgen
