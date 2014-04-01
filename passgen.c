@@ -51,191 +51,6 @@ int getPassword(const char *set, unsigned long setLength, char *password, unsign
 int showRandomWords(void);
 int runtimeTests(void);
 
-/*
- * Fills 'buffer' with cryptographically secure random bytes.
- * buffer - gets filled with random bytes.
- * bufferlength - length of buffer
- */
-int getRandom(void* buffer, unsigned long bufferlength)
-{
-    FILE* random;
-
-    random = fopen("/dev/urandom", "rb");
-    if(random == NULL) {
-        return 0;
-    }
-
-    size_t read = fread(buffer, sizeof(unsigned char), bufferlength, random);
-    if(read != bufferlength) {
-        return 0;
-    }
-
-    if (fclose(random) != 0) {
-        return 0;
-    }
-
-    return 1;
-}
-
-int getRandomUnsignedLong(unsigned long *random)
-{
-    return getRandom(random, sizeof(unsigned long));
-}
-
-void showHelp(void)
-{
-    puts("Usage: passgen <type> <optional arguments>");
-    puts("WARNING: If automated, you MUST check that the exit status is 0.");
-    puts("Where <type> is one of:");
-    puts("  -x, --hex\t\t\t\t64-character hex string");
-    puts("  -a, --ascii\t\t\t\t64-character ASCII string");
-    puts("  -n, --alpha\t\t\t\t64-character alpha-numeric string");
-    printf("  -w, --words\t\t\t\t%d random words from a list of %d\n", WORD_COUNT, WORDLIST_WORD_COUNT);
-    puts("  -h, --help\t\t\t\tShow this help menu");
-
-    puts("Where <optional arguments> can be:");
-    puts("  -p, --password-count COUNT\t\tGenerate COUNT passwords");
-}
-
-unsigned long getMinimalBitMask(unsigned long toRepresent)
-{
-    unsigned long mask = 0;
-    while (mask < toRepresent)
-    {
-        mask = (mask << 1) | 1;
-    }
-    return mask;
-}
-
-int getPassword(const char *set, unsigned long setLength, char *password, unsigned long passwordLength)
-{
-    unsigned long bufLen = passwordLength; 
-    unsigned long bufIdx = 0;
-    unsigned char *rndBuf = (unsigned char*)malloc(bufLen);
-
-    if (setLength < 1) {
-        return 0;
-    }
-    unsigned char bitMask = getMinimalBitMask(setLength - 1ul) & 0xFF;
-
-    if(!getRandom(rndBuf, bufLen))
-    {
-        memset(rndBuf, 0, bufLen);
-        free(rndBuf);
-        return 0;
-    }
-
-    unsigned long i = 0;
-    while(i < passwordLength)
-    {
-        // Read more random bytes if necessary.
-        if(bufIdx >= bufLen)
-        {
-            if(!getRandom(rndBuf, bufLen))
-            {
-                memset(rndBuf, 0, bufLen);
-                free(rndBuf);
-                return 0;
-            }
-            
-            bufIdx = 0;
-        }
-
-        unsigned char c = rndBuf[bufIdx++];
-        c = c & bitMask;
-
-        // Discard the random byte if it isn't in range.
-        if(c < setLength)
-        {
-            password[i] = set[c];
-            i++;
-        }
-    }
-    memset(rndBuf, 0, bufLen);
-    free(rndBuf);
-    return 1;
-}
-
-int showRandomWords(void)
-{
-    unsigned long random = 0;
-    unsigned int words_printed = 0;
-    while (words_printed < WORD_COUNT) {
-        if (!getRandomUnsignedLong(&random)) {
-            return 0;
-        }
-        random = random & getMinimalBitMask(WORDLIST_WORD_COUNT - 1);
-        if (random < WORDLIST_WORD_COUNT) {
-            printf("%s", words[random]);
-            if (words_printed != WORD_COUNT - 1) {
-                printf(".");
-            }
-            words_printed++;
-        }
-    }
-    memset(&random, 0, sizeof(random));
-    printf("\n");
-    return 1;
-}
-
-int runtimeTests(void)
-{
-    /* Make sure the random number generator isn't *completely* broken. */
-    unsigned char buffer[16];
-    memset(buffer, 0, sizeof(buffer));
-    if (!getRandom(buffer, sizeof(buffer))) {
-        return 0;
-    }
-    int all_zero = 1;
-    for (size_t i = 0; i < sizeof(buffer); i++) {
-        if (buffer[i] != 0) {
-            all_zero = 0;
-            break;
-        }
-    }
-    if (all_zero) {
-        return 0;
-    }
-
-    /* Make sure the random long generator isn't *completely* broken. */
-    unsigned long test = 0;
-    if (!getRandomUnsignedLong(&test)) {
-        return 0;
-    }
-    if (test == 0) {
-        return 0;
-    }
-
-    /* Test getMinimalBitMask around boundaries. */
-    if (getMinimalBitMask(0) != 0) { return 0; }
-    if (getMinimalBitMask(1) != 1) { return 0; }
-    if (getMinimalBitMask(2) != 3) { return 0; }
-    if (getMinimalBitMask(3) != 3) { return 0; }
-    if (getMinimalBitMask(4) != 7) { return 0; }
-    if (getMinimalBitMask(5) != 7) { return 0; }
-    if (getMinimalBitMask(6) != 7) { return 0; }
-    if (getMinimalBitMask(7) != 7) { return 0; }
-    if (getMinimalBitMask(8) != 15) { return 0; }
-
-    /* Test getMinimalBitMask around weird values. */
-    if (getMinimalBitMask(ULONG_MAX) != ULONG_MAX) { return 0; }
-    if (getMinimalBitMask(ULONG_MAX - 1) != ULONG_MAX) { return 0; }
-
-    char buffer2[128];
-    getPassword("AB", 2, buffer2, sizeof(buffer2));
-    unsigned int a_count = 0, b_count = 0;
-    for (size_t i = 0; i < sizeof(buffer2); i++) {
-        if (buffer2[i] == 'A') { a_count++; }
-        else if (buffer2[i] == 'B') { b_count++; }
-        else { return 0; }
-    }
-    if (a_count == 0 || b_count == 0) {
-        return 0;
-    }
-
-    return 1;
-}
-
 int main(int argc, char* argv[])
 {
     if(argc < 2)
@@ -386,3 +201,187 @@ int main(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
+void showHelp(void)
+{
+    puts("Usage: passgen <type> <optional arguments>");
+    puts("WARNING: If automated, you MUST check that the exit status is 0.");
+    puts("Where <type> is one of:");
+    puts("  -x, --hex\t\t\t\t64-character hex string");
+    puts("  -a, --ascii\t\t\t\t64-character ASCII string");
+    puts("  -n, --alpha\t\t\t\t64-character alpha-numeric string");
+    printf("  -w, --words\t\t\t\t%d random words from a list of %d\n", WORD_COUNT, WORDLIST_WORD_COUNT);
+    puts("  -h, --help\t\t\t\tShow this help menu");
+
+    puts("Where <optional arguments> can be:");
+    puts("  -p, --password-count COUNT\t\tGenerate COUNT passwords");
+}
+
+int getPassword(const char *set, unsigned long setLength, char *password, unsigned long passwordLength)
+{
+    unsigned long bufLen = passwordLength; 
+    unsigned long bufIdx = 0;
+    unsigned char *rndBuf = (unsigned char*)malloc(bufLen);
+
+    if (setLength < 1) {
+        return 0;
+    }
+    unsigned char bitMask = getMinimalBitMask(setLength - 1ul) & 0xFF;
+
+    if(!getRandom(rndBuf, bufLen))
+    {
+        memset(rndBuf, 0, bufLen);
+        free(rndBuf);
+        return 0;
+    }
+
+    unsigned long i = 0;
+    while(i < passwordLength)
+    {
+        // Read more random bytes if necessary.
+        if(bufIdx >= bufLen)
+        {
+            if(!getRandom(rndBuf, bufLen))
+            {
+                memset(rndBuf, 0, bufLen);
+                free(rndBuf);
+                return 0;
+            }
+            
+            bufIdx = 0;
+        }
+
+        unsigned char c = rndBuf[bufIdx++];
+        c = c & bitMask;
+
+        // Discard the random byte if it isn't in range.
+        if(c < setLength)
+        {
+            password[i] = set[c];
+            i++;
+        }
+    }
+    memset(rndBuf, 0, bufLen);
+    free(rndBuf);
+    return 1;
+}
+
+int showRandomWords(void)
+{
+    unsigned long random = 0;
+    unsigned int words_printed = 0;
+    while (words_printed < WORD_COUNT) {
+        if (!getRandomUnsignedLong(&random)) {
+            return 0;
+        }
+        random = random & getMinimalBitMask(WORDLIST_WORD_COUNT - 1);
+        if (random < WORDLIST_WORD_COUNT) {
+            printf("%s", words[random]);
+            if (words_printed != WORD_COUNT - 1) {
+                printf(".");
+            }
+            words_printed++;
+        }
+    }
+    memset(&random, 0, sizeof(random));
+    printf("\n");
+    return 1;
+}
+
+unsigned long getMinimalBitMask(unsigned long toRepresent)
+{
+    unsigned long mask = 0;
+    while (mask < toRepresent)
+    {
+        mask = (mask << 1) | 1;
+    }
+    return mask;
+}
+
+/*
+ * Fills 'buffer' with cryptographically secure random bytes.
+ * buffer - gets filled with random bytes.
+ * bufferlength - length of buffer
+ */
+int getRandom(void* buffer, unsigned long bufferlength)
+{
+    FILE* random;
+
+    random = fopen("/dev/urandom", "rb");
+    if(random == NULL) {
+        return 0;
+    }
+
+    size_t read = fread(buffer, sizeof(unsigned char), bufferlength, random);
+    if(read != bufferlength) {
+        return 0;
+    }
+
+    if (fclose(random) != 0) {
+        return 0;
+    }
+
+    return 1;
+}
+
+int getRandomUnsignedLong(unsigned long *random)
+{
+    return getRandom(random, sizeof(unsigned long));
+}
+
+int runtimeTests(void)
+{
+    /* Make sure the random number generator isn't *completely* broken. */
+    unsigned char buffer[16];
+    memset(buffer, 0, sizeof(buffer));
+    if (!getRandom(buffer, sizeof(buffer))) {
+        return 0;
+    }
+    int all_zero = 1;
+    for (size_t i = 0; i < sizeof(buffer); i++) {
+        if (buffer[i] != 0) {
+            all_zero = 0;
+            break;
+        }
+    }
+    if (all_zero) {
+        return 0;
+    }
+
+    /* Make sure the random long generator isn't *completely* broken. */
+    unsigned long test = 0;
+    if (!getRandomUnsignedLong(&test)) {
+        return 0;
+    }
+    if (test == 0) {
+        return 0;
+    }
+
+    /* Test getMinimalBitMask around boundaries. */
+    if (getMinimalBitMask(0) != 0) { return 0; }
+    if (getMinimalBitMask(1) != 1) { return 0; }
+    if (getMinimalBitMask(2) != 3) { return 0; }
+    if (getMinimalBitMask(3) != 3) { return 0; }
+    if (getMinimalBitMask(4) != 7) { return 0; }
+    if (getMinimalBitMask(5) != 7) { return 0; }
+    if (getMinimalBitMask(6) != 7) { return 0; }
+    if (getMinimalBitMask(7) != 7) { return 0; }
+    if (getMinimalBitMask(8) != 15) { return 0; }
+
+    /* Test getMinimalBitMask around weird values. */
+    if (getMinimalBitMask(ULONG_MAX) != ULONG_MAX) { return 0; }
+    if (getMinimalBitMask(ULONG_MAX - 1) != ULONG_MAX) { return 0; }
+
+    char buffer2[128];
+    getPassword("AB", 2, buffer2, sizeof(buffer2));
+    unsigned int a_count = 0, b_count = 0;
+    for (size_t i = 0; i < sizeof(buffer2); i++) {
+        if (buffer2[i] == 'A') { a_count++; }
+        else if (buffer2[i] == 'B') { b_count++; }
+        else { return 0; }
+    }
+    if (a_count == 0 || b_count == 0) {
+        return 0;
+    }
+
+    return 1;
+}
