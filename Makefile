@@ -26,5 +26,8 @@ test:
 stat_test:
 	ruby statistical_test.rb
 
+stat_test_fast:
+	ruby statistical_test.rb fast
+
 clean:
 	rm passgen

@@ -1,7 +1,12 @@
-puts "WARNING: This might take a few hours to run..."
 
 # The number of samples is SAMPLES_64TH * 64 (because each password is 64 chars)
-SAMPLES_64TH = 1_000_000 
+if ARGV[0] == "fast"
+  puts "WARNING: Fast mode will miss smaller biases."
+  SAMPLES_64TH = 100_000
+else
+  puts "WARNING: This might take a few hours to run..."
+  SAMPLES_64TH = 1_000_000 
+end
 # I tested this script by inserting a bias with rand() % 10000 == 0, and it
 # caught it. So this many samples can catch a bias even up to 1 part in 10,000.
 
@@ -67,6 +72,7 @@ charsets.each do |charset_name, charset|
 
   # Start the results table.
   puts "\n    TOTAL SAMPLES: #{total}"
+  puts  "    STANDARD DEVIATION THRESHOLD: #{SD_THRESHOLD}"
   puts  "    +------+------------+------------------------+-----------------+"
   print "    | %4s | %-10s | %-22s | %-15s |\n" % ["char", "total", "sd", "status"]
   puts  "    +------+------------+------------------------+-----------------+"
