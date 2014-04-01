@@ -198,7 +198,7 @@ void showHelp(void)
     puts("  -h, --help\t\t\t\tShow this help menu");
 
     puts("Where <optional arguments> can be:");
-    puts("  -p, --password-count COUNT\t\tGenerate COUNT passwords");
+    puts("  -p, --password-count N\t\tSpecify number of passwords to generate");
 }
 
 int getPassword(const char *set, unsigned long setLength, char *password, unsigned long passwordLength)
