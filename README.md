@@ -35,5 +35,5 @@ Audit Status
 ------------
 
 `passgen` has not yet been subjected to a professional security audit. This is
-being tracked in [GitHub #7](https://github.com/defuse/passgen/issues/7).
+being tracked in [GitHub Issue #7](https://github.com/defuse/passgen/issues/7).
 
