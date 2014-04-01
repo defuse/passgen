@@ -67,7 +67,6 @@ int main(int argc, char* argv[])
         {NULL, 0, NULL, 0 }
     };
     
-    int optIndex =  0; // not currently being used
     int currentOptChar = 0;
 
     const char *set; 
@@ -77,7 +76,7 @@ int main(int argc, char* argv[])
     int isPasswordCountSet = 0;
     int generateWordPassword = 0;
     int skipSelfTest = 0;
-    while((currentOptChar = getopt_long(argc, argv, "hzxnwap:", long_options, &optIndex)) != -1)
+    while((currentOptChar = getopt_long(argc, argv, "hzxnwap:", long_options, NULL)) != -1)
     {
             switch(currentOptChar)
             {
