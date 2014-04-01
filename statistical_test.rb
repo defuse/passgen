@@ -1,14 +1,14 @@
 
-# The number of samples is SAMPLES_64TH * 64 (because each password is 64 chars)
 if ARGV[0] == "fast"
   puts "WARNING: Fast mode will miss smaller biases."
-  SAMPLES_64TH = 100_000
+  PASSWORD_SAMPLES = 100_000
 else
   puts "WARNING: This might take a few hours to run..."
-  SAMPLES_64TH = 1_000_000 
+  PASSWORD_SAMPLES = 1_000_000 
 end
 # I tested this script by inserting a bias with rand() % 10000 == 0, and it
-# caught it. So this many samples can catch a bias even up to 1 part in 10,000.
+# caught it with 1_000_000 password samples. So this many samples can catch
+# a bias even up to 1 part in 10,000.
 
 # 1 in 2149 chance of false positive
 SD_THRESHOLD = 3.5
@@ -23,8 +23,6 @@ charsets = {
   "alpha" => ALPHANUMERIC,
   "ascii" => ASCII
 }
-
-# FIXME: add word test
 
 # True if and only if all statistical tests pass.
 all_good = true
@@ -41,11 +39,11 @@ charsets.each do |charset_name, charset|
   total = 0
 
   # Run the password generator and count the frequency of each character.
-  IO.popen( "./passgen --#{charset_name} -p #{SAMPLES_64TH}" ) do |passgen|
+  IO.popen( "./passgen --#{charset_name} -p #{PASSWORD_SAMPLES}" ) do |passgen|
     passgen.each do |line|
       line.strip.split('').each do |char|
         unless counts.has_key? char
-          puts "ERROR: Unknown character in output."
+          puts "ERROR: Unknown character #{char} in output."
           all_good = false
         end
         counts[char] += 1
@@ -55,7 +53,7 @@ charsets.each do |charset_name, charset|
   end
 
   # If the actual number of samples isn't what we'd suspect, something is wrong.
-  if total != SAMPLES_64TH * 64
+  if total != PASSWORD_SAMPLES * 64 and
     puts "ERROR: Incorrect number of samples."
     all_good = false
   end
@@ -73,9 +71,9 @@ charsets.each do |charset_name, charset|
   # Start the results table.
   puts "\n    TOTAL SAMPLES: #{total}"
   puts  "    STANDARD DEVIATION THRESHOLD: #{SD_THRESHOLD}"
-  puts  "    +------+------------+------------------------+-----------------+"
-  print "    | %4s | %-10s | %-22s | %-15s |\n" % ["char", "total", "sd", "status"]
-  puts  "    +------+------------+------------------------+-----------------+"
+  puts  "    +--------+------------+------------------------+-----------------+"
+  print "    | %6s | %-10s | %-22s | %-15s |\n" % ["char", "total", "sd", "status"]
+  puts  "    +--------+------------+------------------------+-----------------+"
 
   # Print a row for each character.
   charset.each do |char|
@@ -90,9 +88,9 @@ charsets.each do |charset_name, charset|
     else
       status = "PASS."
     end
-    print "    | %4s | %-10s | %-22s | %-15s |\n" % [char, counts[char].to_s, difference_sds.to_s, status]
+    print "    | %6s | %-10s | %-22s | %-15s |\n" % [char, counts[char].to_s, difference_sds.to_s, status]
   end
-  print  "    +------+------------+------------------------+-----------------+\n\n"
+  print  "    +--------+------------+------------------------+-----------------+\n\n"
 
 end # charsets.each
 
