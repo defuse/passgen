@@ -62,8 +62,7 @@ static struct option long_options[] = {
 
 int main(int argc, char* argv[])
 {
-    if(argc < 2)
-    {
+    if(argc < 2) {
         showHelp();
         return EXIT_FAILURE;
     }
@@ -78,45 +77,35 @@ int main(int argc, char* argv[])
     int optionCharacter = 0;
     int isPasswordTypeSet = 0;
     int isPasswordCountSet = 0;
-    while((optionCharacter = getopt_long(argc, argv, "hzxnwap:", long_options, NULL)) != -1)
-    {
+    while((optionCharacter = getopt_long(argc, argv, "hzxnwap:", long_options, NULL)) != -1) {
             switch(optionCharacter)
             {
                 case 'h': // help 
                     showHelp();
                     return EXIT_SUCCESS;
                 case 'x': // hex password 
-                    if(isPasswordTypeSet == 0)
-                    {
+                    if(isPasswordTypeSet == 0) {
                         set = CHARSET_HEX;
                         isPasswordTypeSet = 1;
-                    }
-                    else
-                    {
+                    } else {
                         showHelp();
                         return EXIT_FAILURE;
                     }
                     break;
                 case 'n': // alpha password
-                    if(isPasswordTypeSet == 0)
-                    {
+                    if(isPasswordTypeSet == 0) {
                         set = CHARSET_ALPHANUMERIC;
                         isPasswordTypeSet = 1;
-                    }
-                    else
-                    {
+                    } else {
                         showHelp();
                         return EXIT_FAILURE;
                     }
                     break;
                 case 'a': // ascii password
-                    if(isPasswordTypeSet == 0)
-                    {
+                    if(isPasswordTypeSet == 0) {
                         set = CHARSET_ASCII;
                         isPasswordTypeSet = 1;
-                    }
-                    else
-                    {
+                    } else {
                         showHelp();
                         return EXIT_FAILURE;
                     }
@@ -131,20 +120,14 @@ int main(int argc, char* argv[])
                     }
                     break;
                 case 'p': // password-count 
-                    if(isPasswordCountSet == 0)
-                    {
-                        if(sscanf(optarg, "%u", &numberOfPasswords) > 0)
-                        {
+                    if(isPasswordCountSet == 0) {
+                        if(sscanf(optarg, "%u", &numberOfPasswords) > 0) {
                             isPasswordCountSet = 1;
-                        }
-                        else
-                        {
+                        } else {
                             showHelp();
                             return EXIT_FAILURE;
                         }
-                    }
-                    else 
-                    { 
+                    } else { 
                         showHelp();
                         return EXIT_FAILURE;
                     }
@@ -159,8 +142,7 @@ int main(int argc, char* argv[])
     }
     
     // user didn't choose a password type, just a switch?
-    if(!isPasswordTypeSet)
-    {
+    if(!isPasswordTypeSet) {
         showHelp();
         return EXIT_FAILURE;
     }
@@ -180,18 +162,13 @@ int main(int argc, char* argv[])
     } else {
         char result[PASSWORD_LENGTH];
         
-        for(unsigned int i = 0; i < numberOfPasswords; i++)
-        {
-            if(getPassword(set, strlen(set), result, PASSWORD_LENGTH))
-            {
-                for(int j = 0; j < PASSWORD_LENGTH; j++)
-                {
+        for(unsigned int i = 0; i < numberOfPasswords; i++) {
+            if(getPassword(set, strlen(set), result, PASSWORD_LENGTH)) {
+                for(int j = 0; j < PASSWORD_LENGTH; j++) {
                     printf("%c", result[j]);
                 }
                 printf("\n");
-            }
-            else
-            {
+            } else {
                 fprintf(stderr, "Error getting random data.\n");
                 return EXIT_FAILURE;
             }
@@ -228,21 +205,18 @@ int getPassword(const char *set, unsigned long setLength, char *password, unsign
     }
     unsigned char bitMask = getMinimalBitMask(setLength - 1ul) & 0xFF;
 
-    if(!getRandom(rndBuf, bufLen))
-    {
+
+    if(!getRandom(rndBuf, bufLen)) {
         memset(rndBuf, 0, bufLen);
         free(rndBuf);
         return 0;
     }
 
     unsigned long i = 0;
-    while(i < passwordLength)
-    {
+    while(i < passwordLength) {
         // Read more random bytes if necessary.
-        if(bufIdx >= bufLen)
-        {
-            if(!getRandom(rndBuf, bufLen))
-            {
+        if(bufIdx >= bufLen) {
+            if(!getRandom(rndBuf, bufLen)) {
                 memset(rndBuf, 0, bufLen);
                 free(rndBuf);
                 return 0;
@@ -255,12 +229,12 @@ int getPassword(const char *set, unsigned long setLength, char *password, unsign
         c = c & bitMask;
 
         // Discard the random byte if it isn't in range.
-        if(c < setLength)
-        {
+        if(c < setLength) {
             password[i] = set[c];
             i++;
         }
     }
+
     memset(rndBuf, 0, bufLen);
     free(rndBuf);
     return 1;
@@ -291,8 +265,7 @@ int showRandomWords(void)
 unsigned long getMinimalBitMask(unsigned long toRepresent)
 {
     unsigned long mask = 0;
-    while (mask < toRepresent)
-    {
+    while (mask < toRepresent) {
         mask = (mask << 1) | 1;
     }
     return mask;
