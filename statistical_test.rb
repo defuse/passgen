@@ -53,7 +53,7 @@ charsets.each do |charset_name, charset|
   end
 
   # If the actual number of samples isn't what we'd suspect, something is wrong.
-  if total != PASSWORD_SAMPLES * 64 and
+  if total != PASSWORD_SAMPLES * 64
     puts "ERROR: Incorrect number of samples."
     all_good = false
   end
