@@ -39,6 +39,10 @@
 #define NO_PASSWORD_COUNT 4
 #define WORD_COUNT 10
 
+#define CHARSET_HEX "0123456789ABCDEF"
+#define CHARSET_ALPHANUMERIC "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+#define CHARSET_ASCII "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+
 int getRandom(void* buffer, unsigned long bufferlength);
 int getRandomUnsignedLong(unsigned long *random);
 void showHelp(void);
@@ -252,7 +256,7 @@ int main(int argc, char* argv[])
     int optIndex =  0; // not currently being used
     int currentOptChar = 0;
 
-    char set[255]; 
+    const char *set; 
     unsigned char setLength = 0;
     unsigned int numberOfPasswords = 1;
     int isPasswordTypeSet = 0;
@@ -268,8 +272,8 @@ int main(int argc, char* argv[])
                 case 'x': // hex password 
                     if(isPasswordTypeSet == 0)
                     {
-                        strcpy(set, "ABCDEF0123456789");
-                        setLength = 16;
+                        set = CHARSET_HEX;
+                        setLength = strlen(CHARSET_HEX);
                         isPasswordTypeSet = 1;
                     }
                     else
@@ -281,8 +285,8 @@ int main(int argc, char* argv[])
                 case 'n': // alpha password
                     if(isPasswordTypeSet == 0)
                     {
-                        strcpy(set, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-                        setLength = 62;
+                        set = CHARSET_ALPHANUMERIC;
+                        setLength = strlen(CHARSET_ALPHANUMERIC);
                         isPasswordTypeSet = 1;
                     }
                     else
@@ -294,8 +298,8 @@ int main(int argc, char* argv[])
                 case 'a': // ascii password
                     if(isPasswordTypeSet == 0)
                     {
-                        strcpy(set, "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
-                        setLength = 94;
+                        set = CHARSET_ASCII;
+                        setLength = strlen(CHARSET_ASCII);
                         isPasswordTypeSet = 1;
                     }
                     else
