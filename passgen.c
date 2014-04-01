@@ -80,10 +80,11 @@ int main(int argc, char* argv[])
     while((optionCharacter = getopt_long(argc, argv, "hzxnwap:", long_options, NULL)) != -1) {
             switch(optionCharacter)
             {
-                case 'h': // help 
+                case 'h': /* help */
                     showHelp();
                     return EXIT_SUCCESS;
-                case 'x': // hex password 
+
+                case 'x': /* hex password */
                     if(isPasswordTypeSet == 0) {
                         set = CHARSET_HEX;
                         isPasswordTypeSet = 1;
@@ -92,7 +93,8 @@ int main(int argc, char* argv[])
                         return EXIT_FAILURE;
                     }
                     break;
-                case 'n': // alpha password
+
+                case 'n': /* alphanumeric password */
                     if(isPasswordTypeSet == 0) {
                         set = CHARSET_ALPHANUMERIC;
                         isPasswordTypeSet = 1;
@@ -101,7 +103,8 @@ int main(int argc, char* argv[])
                         return EXIT_FAILURE;
                     }
                     break;
-                case 'a': // ascii password
+
+                case 'a': /* ascii password */
                     if(isPasswordTypeSet == 0) {
                         set = CHARSET_ASCII;
                         isPasswordTypeSet = 1;
@@ -110,7 +113,8 @@ int main(int argc, char* argv[])
                         return EXIT_FAILURE;
                     }
                     break;
-                case 'w': // random words
+
+                case 'w': /* words password */
                     if (isPasswordTypeSet == 0) {
                         generateWordPassword = 1;
                         isPasswordTypeSet = 1;
@@ -119,7 +123,8 @@ int main(int argc, char* argv[])
                         return EXIT_FAILURE;
                     }
                     break;
-                case 'p': // password-count 
+
+                case 'p': /* multiple passwords */
                     if(isPasswordCountSet == 0) {
                         if(sscanf(optarg, "%u", &numberOfPasswords) > 0) {
                             isPasswordCountSet = 1;
@@ -132,10 +137,12 @@ int main(int argc, char* argv[])
                         return EXIT_FAILURE;
                     }
                     break;
-                case 'z':
+
+                case 'z': /* skip self test - for test.rb */
                     skipSelfTest = 1;
                     break;
-                default: // unknown opt
+
+                default:
                     showHelp();
                     return EXIT_FAILURE;
             }
