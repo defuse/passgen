@@ -18,6 +18,9 @@ wordlist:
 
 # The $$ instead of $ in the egrep command is a Make-escaped $.
 
+test:
+	ruby test.rb
+
 clean:
 	rm wordlist.h
 	rm passgen

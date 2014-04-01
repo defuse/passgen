@@ -35,8 +35,6 @@
 #include "wordlist.h"
 
 #define PASSWORD_LENGTH 64
-#define RANDOM_DATA_ERROR 3
-#define NO_PASSWORD_COUNT 4
 #define WORD_COUNT 10
 
 #define CHARSET_HEX "0123456789ABCDEF"
@@ -64,6 +62,7 @@ int main(int argc, char* argv[])
         {"alpha",             no_argument,       NULL, 'n' },
         {"ascii",             no_argument,       NULL, 'a' },
         {"words",             no_argument,       NULL, 'w' },
+        {"dont-use-this",     no_argument,       NULL, 'z' },
         {"password-count",    required_argument, NULL, 'p' },
         {NULL, 0, NULL, 0 }
     };
@@ -77,7 +76,8 @@ int main(int argc, char* argv[])
     int isPasswordTypeSet = 0;
     int isPasswordCountSet = 0;
     int generateWordPassword = 0;
-    while((currentOptChar = getopt_long(argc, argv, "hxnwap:", long_options, &optIndex)) != -1)
+    int skipSelfTest = 0;
+    while((currentOptChar = getopt_long(argc, argv, "hzxnwap:", long_options, &optIndex)) != -1)
     {
             switch(currentOptChar)
             {
@@ -151,6 +151,9 @@ int main(int argc, char* argv[])
                         return EXIT_FAILURE;
                     }
                     break;
+                case 'z':
+                    skipSelfTest = 1;
+                    break;
                 default: // unknown opt
                     showHelp();
                     return EXIT_FAILURE;
@@ -164,7 +167,7 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    if (!runtimeTests()) {
+    if (!skipSelfTest && !runtimeTests()) {
         fprintf(stderr, "ERROR: Runtime self-tests failed. SOMETHING IS WRONG\n");
         return EXIT_FAILURE;
     }
@@ -173,7 +176,7 @@ int main(int argc, char* argv[])
         for (unsigned int i = 0; i < numberOfPasswords; i++) {
             if (!showRandomWords()) {
                 fprintf(stderr, "Error getting random data.\n");
-                return RANDOM_DATA_ERROR;
+                return EXIT_FAILURE;
             }
         }
     } else {
@@ -192,7 +195,7 @@ int main(int argc, char* argv[])
             else
             {
                 fprintf(stderr, "Error getting random data.\n");
-                return RANDOM_DATA_ERROR;
+                return EXIT_FAILURE;
             }
             memset(result, 0, PASSWORD_LENGTH);
         }
