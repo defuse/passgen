@@ -7,12 +7,12 @@ LOTS_O_WARNINGS = -Werror -Wall -Wextra -Wwrite-strings -Winit-self -Wcast-align
 passgen: passgen.c wordlist.h
 	gcc -std=c99 $(LOTS_O_WARNINGS) passgen.c -o passgen
 
+wordlist.h: generate_wordlist.rb wordlist.txt
+	ruby generate_wordlist.rb > wordlist.h
+
 # Rebuild the wordlist from the original source.
 wordlist:
 	wget world.std.com/~reinhold/diceware.wordlist.asc -O - | egrep "[0-9]{5}" | cut -f 2 | egrep '^[[:alpha:]]{3,}[[:alpha:]]*$$' | sort -u > wordlist.txt
-
-wordlist.h: generate_wordlist.rb wordlist.txt
-	ruby generate_wordlist.rb > wordlist.h
 
 # NOTE: The `sort -u` serves a security purpose here:
 # If a network attacker injects duplicate words as we download the list,
