@@ -49,6 +49,17 @@ int getPassword(const char *set, unsigned long setLength, char *password, unsign
 int showRandomWords(void);
 int runtimeTests(void);
 
+static struct option long_options[] = {
+    {"help",              no_argument,       NULL, 'h' },
+    {"hex",               no_argument,       NULL, 'x' },
+    {"alpha",             no_argument,       NULL, 'n' },
+    {"ascii",             no_argument,       NULL, 'a' },
+    {"words",             no_argument,       NULL, 'w' },
+    {"dont-use-this",     no_argument,       NULL, 'z' },
+    {"password-count",    required_argument, NULL, 'p' },
+    {NULL, 0, NULL, 0 }
+};
+
 int main(int argc, char* argv[])
 {
     if(argc < 2)
@@ -56,29 +67,20 @@ int main(int argc, char* argv[])
         showHelp();
         return EXIT_FAILURE;
     }
-    static struct option long_options[] = {
-        {"help",              no_argument,       NULL, 'h' },
-        {"hex",               no_argument,       NULL, 'x' },
-        {"alpha",             no_argument,       NULL, 'n' },
-        {"ascii",             no_argument,       NULL, 'a' },
-        {"words",             no_argument,       NULL, 'w' },
-        {"dont-use-this",     no_argument,       NULL, 'z' },
-        {"password-count",    required_argument, NULL, 'p' },
-        {NULL, 0, NULL, 0 }
-    };
     
-    int currentOptChar = 0;
-
+    /* Options */
     const char *set; 
-    unsigned char setLength = 0;
     unsigned int numberOfPasswords = 1;
-    int isPasswordTypeSet = 0;
-    int isPasswordCountSet = 0;
     int generateWordPassword = 0;
     int skipSelfTest = 0;
-    while((currentOptChar = getopt_long(argc, argv, "hzxnwap:", long_options, NULL)) != -1)
+
+    /* Variables used while parsing. */
+    int optionCharacter = 0;
+    int isPasswordTypeSet = 0;
+    int isPasswordCountSet = 0;
+    while((optionCharacter = getopt_long(argc, argv, "hzxnwap:", long_options, NULL)) != -1)
     {
-            switch(currentOptChar)
+            switch(optionCharacter)
             {
                 case 'h': // help 
                     showHelp();
@@ -87,7 +89,6 @@ int main(int argc, char* argv[])
                     if(isPasswordTypeSet == 0)
                     {
                         set = CHARSET_HEX;
-                        setLength = strlen(CHARSET_HEX);
                         isPasswordTypeSet = 1;
                     }
                     else
@@ -100,7 +101,6 @@ int main(int argc, char* argv[])
                     if(isPasswordTypeSet == 0)
                     {
                         set = CHARSET_ALPHANUMERIC;
-                        setLength = strlen(CHARSET_ALPHANUMERIC);
                         isPasswordTypeSet = 1;
                     }
                     else
@@ -113,7 +113,6 @@ int main(int argc, char* argv[])
                     if(isPasswordTypeSet == 0)
                     {
                         set = CHARSET_ASCII;
-                        setLength = strlen(CHARSET_ASCII);
                         isPasswordTypeSet = 1;
                     }
                     else
@@ -183,7 +182,7 @@ int main(int argc, char* argv[])
         
         for(unsigned int i = 0; i < numberOfPasswords; i++)
         {
-            if(getPassword(set, setLength, result, PASSWORD_LENGTH))
+            if(getPassword(set, strlen(set), result, PASSWORD_LENGTH))
             {
                 for(int j = 0; j < PASSWORD_LENGTH; j++)
                 {
