@@ -1,10 +1,12 @@
 passgen
 =======
 
+[![Build Status](https://travis-ci.org/defuse/passgen.svg?branch=master)](https://travis-ci.org/defuse/passgen)
+
 `passgen` is a unix command line tool for generating passwords. It generates
 passwords by turning bytes from `/dev/urandom` into characters in the desired
 character set using the try-and-throw-away algorithm from Section 9.7 of
-Cryptography Engineering.
+Cryptography Engineering (Ferguson, Schneier, Kohno).
 
 It supports generating passwords with characters chosen from printable ASCII,
 alphanumeric, and hex characters, as well as a string of random words.
