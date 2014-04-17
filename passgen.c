@@ -49,7 +49,7 @@ int getPassword(const char *set, unsigned long setLength, char *password, unsign
 int showRandomWords(void);
 int runtimeTests(void);
 
-static struct option long_options[] = {{
+static struct option long_options[] = {
     {"help",              no_argument,       NULL, 'h' },
     {"hex",               no_argument,       NULL, 'x' },
     {"alpha",             no_argument,       NULL, 'n' },
