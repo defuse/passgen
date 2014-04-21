@@ -55,8 +55,9 @@ static struct option long_options[] = {
     {"alpha",             no_argument,       NULL, 'n' },
     {"ascii",             no_argument,       NULL, 'a' },
     {"words",             no_argument,       NULL, 'w' },
-    {"dont-use-this",     no_argument,       NULL, 'z' },
     {"password-count",    required_argument, NULL, 'p' },
+    /* This skips the self test -- don't do it unless you're testing. */
+    {"dont-use-this",     no_argument,       NULL, 'z' },
     {NULL, 0, NULL, 0 }
 };
 
