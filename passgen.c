@@ -180,6 +180,7 @@ int main(int argc, char* argv[])
                 }
                 printf("\n");
             } else {
+                memset_s(result, 0, PASSWORD_LENGTH);
                 fprintf(stderr, "Error getting random data.\n");
                 return EXIT_FAILURE;
             }
