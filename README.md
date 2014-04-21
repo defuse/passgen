@@ -36,6 +36,7 @@ Examples
 Audit Status
 ------------
 
-`passgen` has not yet been subjected to a professional security audit. This is
-being tracked in [GitHub Issue #7](https://github.com/defuse/passgen/issues/7).
+`passgen` has not yet been subjected to a professional security audit (except by
+its author, of course). This is being tracked in [GitHub Issue
+#7](https://github.com/defuse/passgen/issues/7).
 
