@@ -1,3 +1,6 @@
 # This is a build configuration for travis-ci.org
 language: c
-script: make
+before_install:
+    - sudo apt-get update -qq
+    - sudo apt-get install fakechroot
+script: make && make test
