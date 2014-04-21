@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
                 printf("\n");
             } else {
                 memset_s(result, 0, PASSWORD_LENGTH);
-                fprintf(stderr, "Error getting random data.\n");
+                fprintf(stderr, "Error getting random data or allocating memory.\n");
                 return EXIT_FAILURE;
             }
             memset_s(result, 0, PASSWORD_LENGTH);
@@ -212,11 +212,14 @@ int getPassword(const char *set, unsigned long setLength, char *password, unsign
     unsigned long bufIdx = 0;
     unsigned char *rndBuf = (unsigned char*)malloc(bufLen);
 
-    if (setLength < 1) {
+    if (rndBuf == NULL) {
+        return 0;
+    }
+
+    if (setLength < 1 || setLength > 256) {
         return 0;
     }
     unsigned char bitMask = getLeastCoveringMask(setLength - 1ul) & 0xFF;
-
 
     if(!getRandom(rndBuf, bufLen)) {
         memset_s(rndBuf, 0, bufLen);
@@ -352,6 +355,7 @@ int runtimeTests(void)
     if (getLeastCoveringMask(6) != 7) { return 0; }
     if (getLeastCoveringMask(7) != 7) { return 0; }
     if (getLeastCoveringMask(8) != 15) { return 0; }
+    if (getLeastCoveringMask(255) != 255) { return 0; }
 
     /* Test getLeastCoveringMask around weird values. */
     if (getLeastCoveringMask(ULONG_MAX) != ULONG_MAX) { return 0; }

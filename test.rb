@@ -49,7 +49,7 @@ output = `fakechroot sh -c "chroot ./ /passgen -x 2>&1"`
 
 output = `fakechroot sh -c "chroot ./ /passgen -x -z 2>&1"`
 "URANDOM Exit Status".is_broken unless $?.exitstatus == 1
-"URANDOM Output".is_broken unless output === "Error getting random data.\n"
+"URANDOM Output".is_broken unless output === "Error getting random data or allocating memory.\n"
 
 # Test multiple password output
 
