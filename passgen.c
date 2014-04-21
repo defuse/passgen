@@ -86,43 +86,39 @@ int main(int argc, char* argv[])
                     return EXIT_SUCCESS;
 
                 case 'x': /* hex password */
-                    if(isPasswordTypeSet == 0) {
-                        set = CHARSET_HEX;
-                        isPasswordTypeSet = 1;
-                    } else {
+                    if (isPasswordTypeSet) {
                         showHelp();
                         return EXIT_FAILURE;
                     }
+                    set = CHARSET_HEX;
+                    isPasswordTypeSet = 1;
                     break;
 
                 case 'n': /* alphanumeric password */
-                    if(isPasswordTypeSet == 0) {
-                        set = CHARSET_ALPHANUMERIC;
-                        isPasswordTypeSet = 1;
-                    } else {
+                    if (isPasswordTypeSet) {
                         showHelp();
                         return EXIT_FAILURE;
                     }
+                    set = CHARSET_ALPHANUMERIC;
+                    isPasswordTypeSet = 1;
                     break;
 
                 case 'a': /* ascii password */
-                    if(isPasswordTypeSet == 0) {
-                        set = CHARSET_ASCII;
-                        isPasswordTypeSet = 1;
-                    } else {
+                    if (isPasswordTypeSet) {
                         showHelp();
                         return EXIT_FAILURE;
                     }
+                    set = CHARSET_ASCII;
+                    isPasswordTypeSet = 1;
                     break;
 
                 case 'w': /* words password */
-                    if (isPasswordTypeSet == 0) {
-                        generateWordPassword = 1;
-                        isPasswordTypeSet = 1;
-                    } else {
+                    if (isPasswordTypeSet) {
                         showHelp();
                         return EXIT_FAILURE;
                     }
+                    generateWordPassword = 1;
+                    isPasswordTypeSet = 1;
                     break;
 
                 case 'p': /* multiple passwords */
