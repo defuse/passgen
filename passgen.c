@@ -48,6 +48,7 @@ unsigned long getLeastCoveringMask(unsigned long toRepresent);
 int getPassword(const char *set, unsigned long setLength, char *password, unsigned long passwordLength);
 int showRandomWords(void);
 int runtimeTests(void);
+void *memset_s(void *v, int c, size_t n);
 
 static struct option long_options[] = {
     {"help",              no_argument,       NULL, 'h' },
@@ -148,12 +149,15 @@ int main(int argc, char* argv[])
             }
     }
     
-    // user didn't choose a password type, just a switch?
+    /* Choosing a password type is mandatory. */
     if(!isPasswordTypeSet) {
         showHelp();
         return EXIT_FAILURE;
     }
 
+    /* We run unit tests on EVERY execution just to make sure nothing is
+     * horribly wrong. There's an option to skip it, which is used for testing
+     * purposes (see test.rb). */
     if (!skipSelfTest && !runtimeTests()) {
         fprintf(stderr, "ERROR: Runtime self-tests failed. SOMETHING IS WRONG\n");
         return EXIT_FAILURE;
@@ -179,7 +183,7 @@ int main(int argc, char* argv[])
                 fprintf(stderr, "Error getting random data.\n");
                 return EXIT_FAILURE;
             }
-            memset(result, 0, PASSWORD_LENGTH);
+            memset_s(result, 0, PASSWORD_LENGTH);
         }
     }
 
@@ -214,7 +218,7 @@ int getPassword(const char *set, unsigned long setLength, char *password, unsign
 
 
     if(!getRandom(rndBuf, bufLen)) {
-        memset(rndBuf, 0, bufLen);
+        memset_s(rndBuf, 0, bufLen);
         free(rndBuf);
         return 0;
     }
@@ -224,7 +228,7 @@ int getPassword(const char *set, unsigned long setLength, char *password, unsign
         // Read more random bytes if necessary.
         if(bufIdx >= bufLen) {
             if(!getRandom(rndBuf, bufLen)) {
-                memset(rndBuf, 0, bufLen);
+                memset_s(rndBuf, 0, bufLen);
                 free(rndBuf);
                 return 0;
             }
@@ -242,7 +246,7 @@ int getPassword(const char *set, unsigned long setLength, char *password, unsign
         }
     }
 
-    memset(rndBuf, 0, bufLen);
+    memset_s(rndBuf, 0, bufLen);
     free(rndBuf);
     return 1;
 }
@@ -264,7 +268,7 @@ int showRandomWords(void)
             words_printed++;
         }
     }
-    memset(&random, 0, sizeof(random));
+    memset_s(&random, 0, sizeof(random));
     printf("\n");
     return 1;
 }
@@ -313,7 +317,7 @@ int runtimeTests(void)
 {
     /* Make sure the random number generator isn't *completely* broken. */
     unsigned char buffer[16];
-    memset(buffer, 0, sizeof(buffer));
+    memset_s(buffer, 0, sizeof(buffer));
     if (!getRandom(buffer, sizeof(buffer))) {
         return 0;
     }
@@ -364,5 +368,27 @@ int runtimeTests(void)
         return 0;
     }
 
+    buffer2[0] = 0xFF;
+    buffer2[3] = 0xFF;
+    buffer2[127] = 0xFF;
+    memset_s(buffer2, 0, sizeof(buffer2));
+    if (buffer2[0] != 0 || buffer2[3] != 0 || buffer2[127] != 0) {
+        return 0;
+    }
+
     return 1;
 }
+
+/* 
+ * This code was taken from (url split into two lines):
+ * https://www.securecoding.cert.org/confluence/display/cplusplus/
+ * MSC06-CPP.+Be+aware+of+compiler+optimization+when+dealing+with+sensitive+data
+ */
+void *memset_s(void *v, int c, size_t n) {
+  volatile unsigned char *p = v;
+  while (n--)
+    *p++ = c;
+ 
+  return v;
+}
+
