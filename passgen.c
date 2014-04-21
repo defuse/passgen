@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
     
     /* Options */
     const char *set; 
-    unsigned int numberOfPasswords = 1;
+    int numberOfPasswords = 1;
     int generateWordPassword = 0;
     int skipSelfTest = 0;
 
@@ -122,14 +122,17 @@ int main(int argc, char* argv[])
                     break;
 
                 case 'p': /* multiple passwords */
-                    if(isPasswordCountSet == 0) {
-                        if(sscanf(optarg, "%u", &numberOfPasswords) > 0) {
-                            isPasswordCountSet = 1;
-                        } else {
+                    if (isPasswordCountSet) {
+                        showHelp();
+                        return EXIT_FAILURE;
+                    }
+                    if(sscanf(optarg, "%d", &numberOfPasswords) == 1) {
+                        if (numberOfPasswords <= 0) {
                             showHelp();
                             return EXIT_FAILURE;
                         }
-                    } else { 
+                        isPasswordCountSet = 1;
+                    } else {
                         showHelp();
                         return EXIT_FAILURE;
                     }
@@ -157,7 +160,7 @@ int main(int argc, char* argv[])
     }
 
     if (generateWordPassword) {
-        for (unsigned int i = 0; i < numberOfPasswords; i++) {
+        for (int i = 0; i < numberOfPasswords; i++) {
             if (!showRandomWords()) {
                 fprintf(stderr, "Error getting random data.\n");
                 return EXIT_FAILURE;
@@ -166,7 +169,7 @@ int main(int argc, char* argv[])
     } else {
         char result[PASSWORD_LENGTH];
         
-        for(unsigned int i = 0; i < numberOfPasswords; i++) {
+        for(int i = 0; i < numberOfPasswords; i++) {
             if(getPassword(set, strlen(set), result, PASSWORD_LENGTH)) {
                 for(int j = 0; j < PASSWORD_LENGTH; j++) {
                     printf("%c", result[j]);

@@ -61,6 +61,9 @@ output = `./passgen -w -p 213 2>&1`
 "Word Multiple Exit Status".is_broken unless $?.exitstatus == 0
 "Word Multiple Output".is_broken unless /\A((([a-z]+)\.){9}[a-z]+\n){213}\z/ =~ output
 
+output = `./passgen -a -p -2 2>&1`
+"Multiple (Negative) Exit Status".is_broken unless $?.exitstatus == 1
+
 # Make sure the first and last word in the wordlist can appear in the output.
 # Note: This may false-negative, but the probability of that is extremely low.
 
