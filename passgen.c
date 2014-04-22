@@ -373,9 +373,9 @@ int runtimeTests(void)
         return 0;
     }
 
-    buffer2[0] = 0xFF;
-    buffer2[3] = 0xFF;
-    buffer2[127] = 0xFF;
+    buffer2[0] = -1;
+    buffer2[3] = -1;
+    buffer2[127] = -1;
     memset_s(buffer2, 0, sizeof(buffer2));
     if (buffer2[0] != 0 || buffer2[3] != 0 || buffer2[127] != 0) {
         return 0;
