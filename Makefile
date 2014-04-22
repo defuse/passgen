@@ -4,6 +4,9 @@ LOTS_O_WARNINGS = -pedantic -Werror -Wall -Wextra -Wwrite-strings -Winit-self -W
 passgen: passgen.c wordlist.h
 	gcc -std=c99 $(LOTS_O_WARNINGS) passgen.c -o passgen
 
+testbuild: passgen.c wordlist.h
+	gcc -fprofile-arcs -ftest-coverage -std=c99 $(LOTS_O_WARNINGS) passgen.c -o passgen
+
 wordlist.h: generate_wordlist.rb wordlist.txt
 	ruby generate_wordlist.rb > wordlist.h
 
@@ -28,3 +31,4 @@ stat_test_fast:
 
 clean:
 	rm passgen
+	find -name '*.gcda' -o -name '*.gcno' -delete
