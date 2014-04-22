@@ -2,6 +2,7 @@ passgen
 =======
 
 [![Build Status](https://travis-ci.org/defuse/passgen.svg?branch=master)](https://travis-ci.org/defuse/passgen)
+[![Coverage Status](https://coveralls.io/repos/defuse/passgen/badge.png?branch=master)](https://coveralls.io/r/defuse/passgen?branch=master)
 
 `passgen` is a unix command line tool for generating passwords. It generates
 passwords by turning bytes from `/dev/urandom` into characters in the desired
