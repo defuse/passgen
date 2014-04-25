@@ -7,11 +7,12 @@ before_install:
     - sudo pip install cpp-coveralls
 
 script:
+    # Regular build and test.
     - make && make test
-    # - make testbuild && make test
-    # We do both just in case 'testbuild' is somehow different.
+    # Clean up so the next build will always re-build everything.
+    - make clean
+    # Build and test with code coverage stuff.
+    - EXTRA_GCC_FLAGS='-fprofile-arcs -ftest-coverage' make && make test
 
 after_success:
-    # - coveralls
-
-    # XXX: Commented out the stuff for coveralls because need better Makefile.
+    - coveralls
