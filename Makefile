@@ -1,14 +1,20 @@
 
 LOTS_O_WARNINGS = -pedantic -Werror -Wall -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual -Wpointer-arith -Wstrict-aliasing -Wformat=2 -Wmissing-declarations -Wmissing-include-dirs -Wno-unused-parameter -Wuninitialized -Wold-style-definition -Wstrict-prototypes -Wmissing-prototypes
 
-passgen: passgen.o ct32.o
-	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) ct32.o passgen.o -o passgen
+passgen: passgen.o ct32.o ct_string.o memset_s.o
+	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) ct32.o memset_s.o ct_string.o passgen.o -o passgen
 
-passgen.o: passgen.c wordlist.h ct32.h
+passgen.o: passgen.c wordlist.h
 	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c passgen.c -o passgen.o
 
 ct32.o: ct32.c ct32.h
 	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c ct32.c -o ct32.o
+
+ct_string.o: ct_string.c ct_string.h
+	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c ct_string.c -o ct_string.o
+
+memset_s.o: memset_s.c memset_s.h
+	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c memset_s.c -o memset_s.o
 
 wordlist.h: generate_wordlist.rb wordlist.txt
 	ruby generate_wordlist.rb > wordlist.h

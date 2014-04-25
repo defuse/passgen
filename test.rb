@@ -36,11 +36,11 @@ output = `./passgen -a 2>&1`
 
 output = `./passgen --words 2>&1`
 "Word Exit Status".is_broken unless $?.exitstatus == 0
-"Word Output".is_broken unless /\A(([a-z]+)\.){9}[a-z]+\n\z/ =~ output
+"Word Output".is_broken unless /\A(([a-z]+)\.){9}[a-z]+\.*\n\z/ =~ output
 
 output = `./passgen -w 2>&1`
 "Word Exit Status".is_broken unless $?.exitstatus == 0
-"Word Output".is_broken unless /\A(([a-z]+)\.){9}[a-z]+\n\z/ =~ output
+"Word Output".is_broken unless /\A(([a-z]+)\.){9}[a-z]+\.*\n\z/ =~ output
 
 # Test what happens when /dev/urandom is missing.
 output = `fakechroot sh -c "chroot ./ /passgen -x 2>&1"`
@@ -59,7 +59,7 @@ output = `./passgen -a -p 213 2>&1`
 
 output = `./passgen -w -p 213 2>&1`
 "Word Multiple Exit Status".is_broken unless $?.exitstatus == 0
-"Word Multiple Output".is_broken unless /\A((([a-z]+)\.){9}[a-z]+\n){213}\z/ =~ output
+"Word Multiple Output".is_broken unless /\A((([a-z]+)\.){9}[a-z]+\.*\n){213}\z/ =~ output
 
 output = `./passgen -a -p -2 2>&1`
 "Multiple (Negative) Exit Status".is_broken unless $?.exitstatus == 1

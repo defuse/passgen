@@ -34,8 +34,12 @@
 
 /* Constant time integer functions by Samuel Neves */
 #include "ct32.h"
+/* Constant time string library. */
+#include "ct_string.h"
 /* Automatically generated file containing the wordlist array. */
 #include "wordlist.h"
+/* An implementation of memset() that the compiler won't optimize out. */
+#include "memset_s.h"
 
 #define PASSWORD_LENGTH 64
 #define WORD_COUNT 10
@@ -51,7 +55,7 @@ unsigned long getLeastCoveringMask(unsigned long toRepresent);
 int getPassword(const char *set, unsigned long setLength, unsigned char *password, unsigned long passwordLength);
 int showRandomWords(void);
 int runtimeTests(void);
-void *memset_s(void *v, int c, size_t n);
+uint32_t lookup_word(unsigned char *buf, uint32_t index);
 
 static struct option long_options[] = {
     {"help",              no_argument,       NULL, 'h' },
@@ -258,24 +262,76 @@ int getPassword(const char *set, unsigned long setLength, unsigned char *passwor
 
 int showRandomWords(void)
 {
+    unsigned int words_added = 0;
     unsigned long random = 0;
-    unsigned int words_printed = 0;
-    while (words_printed < WORD_COUNT) {
+    unsigned char word[WORDLIST_MAX_LENGTH];
+    uint32_t word_length = 0;
+    ct_string str;
+    ct_string_init(&str);
+
+    while (words_added < WORD_COUNT) {
         if (!getRandomUnsignedLong(&random)) {
             return 0;
         }
         random = random & getLeastCoveringMask(WORDLIST_WORD_COUNT - 1);
+
         if (random < WORDLIST_WORD_COUNT) {
-            printf("%s", words[random]);
-            if (words_printed != WORD_COUNT - 1) {
-                printf(".");
+            word_length = lookup_word(word, random);
+
+            /* Concatenate the '.' between words if it isn't the first word. */
+            if (words_added > 0) {
+                if (!ct_string_concat(&str, (const unsigned char *)".", 1, 1)) {
+                    return 0;
+                }
             }
-            words_printed++;
+
+            /* Concatenate the word itself. */
+            if (!ct_string_concat(&str, word, WORDLIST_MAX_LENGTH, word_length)) {
+                return 0;
+            }
+
+            words_added++;
         }
+
     }
-    memset_s(&random, 0, sizeof(random));
+
+    uint32_t total_length = ct_string_allocated_length(&str);
+
+    unsigned char *final = malloc(total_length);
+    if (final == NULL) {
+        return 0;
+    }
+
+    ct_string_finalize(&str, final, '.');
+    fwrite(final, sizeof(unsigned char), total_length, stdout);
     printf("\n");
+
+    memset_s(&random, 0, sizeof(random));
+    memset_s(word, 0, WORDLIST_MAX_LENGTH);
+    memset_s(final, 0, total_length);
+
+    ct_string_deinit(&str);
+    free(final);
+
     return 1;
+}
+
+uint32_t lookup_word(unsigned char *buf, uint32_t index)
+{
+    uint32_t length = 0;
+    for (uint32_t i = 0; i < WORDLIST_MAX_LENGTH; i++) {
+        buf[i] = 0;
+    }
+
+    for (uint32_t i = 0; i < WORDLIST_WORD_COUNT; i++) {
+        uint32_t mask = ct_mask_u32(ct_eq_u32(i, index));
+        for (uint32_t j = 0; j < WORDLIST_MAX_LENGTH; j++) {
+            buf[j] |= words[i][j+1] & mask;
+        }
+        length |= words[i][0] & mask;
+    }
+
+    return length;
 }
 
 unsigned long getLeastCoveringMask(unsigned long toRepresent)
@@ -385,6 +441,7 @@ int runtimeTests(void)
     }
 
     /* Test the functions we use from Samuel Neves' code. */
+    // FIXME: these tests don't reflect what we use anymore
     if (ct_eq_u32(0, 0) != 1) { return 0; }
     if (ct_eq_u32(5, 5) != 1) { return 0; }
     if (ct_eq_u32(0x80000000u, 0x80000000u) != 1) { return 0; }
@@ -405,18 +462,19 @@ int runtimeTests(void)
         }
     }
 
-    return 1;
-}
+    /* Test constant time string library. */
+    ct_string str;
+    ct_string_init(&str);
+    ct_string_concat(&str, (const unsigned char *)"ABCDEF", 6, 3);
+    ct_string_concat(&str, (const unsigned char *)"GHIJKL", 6, 3);
+    ct_string_concat(&str, (const unsigned char *)"12345", 5, 5);
+    if (ct_string_allocated_length(&str) != 17) { return 0; }
+    unsigned char str_result[17];
+    ct_string_finalize(&str, str_result, 'Z');
+    if (memcmp(str_result, "ABCGHI12345ZZZZZZ", 17) != 0) {
+        return 0;
+    }
+    ct_string_deinit(&str);
 
-/* 
- * This code was taken from (url split into two lines):
- * https://www.securecoding.cert.org/confluence/display/cplusplus/
- * MSC06-CPP.+Be+aware+of+compiler+optimization+when+dealing+with+sensitive+data
- */
-void *memset_s(void *v, int c, size_t n) {
-  volatile unsigned char *p = v;
-  while (n--)
-    *p++ = c;
- 
-  return v;
+    return 1;
 }
