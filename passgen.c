@@ -422,39 +422,13 @@ void *memset_s(void *v, int c, size_t n) {
   return v;
 }
 
+/* Written by Samuel Neves. */
 unsigned char invariant_time_lookup(const unsigned char *array, uint32_t length, uint32_t index)
 {
-    unsigned char result = 0;
-    for (uint32_t i = 0; i < length; i++) {
-        /* If the index is wrong, mask will be zero, and we'll bitwise-or zero
-         * into the result (which has no effect). If the index is right, the
-         * mask will be all 1 bits, so we'll bitwise-or the contents of the
-         * array into the result. */
-        uint32_t mask = ct_mask_u32(ct_eq_u32(index, i));
-        result |= (unsigned long)array[i] & (unsigned long)mask;
-
-        /*
-         * The explicit casts to unsigned long makes this a little easier to
-         * reason about. I think it would work if they weren't there, but the
-         * logic is a lot simpler this way:
-         *
-         * The cast to unsigned long is guaranteed to preserve the value of both
-         * operands, since unsigned long is guaranteed to be at least 32 bits.
-         * Since unsigned long ranks higher than int, integer promotions will do
-         * nothing. Since both types are the same after promotions, conversions
-         * will also do nothing. The bitwise-and will be performed between
-         * unsigned longs, and the result will be truncated (value-changing, but
-         * defined) to an unsigned char.
-         *
-         * If this line ever changes, remember to consider ILP64 systems, where
-         * int is 64 bits, in which case 'mask' would get promoted to int.
-         *
-         * p.s. Thanks to @solardiz and @sevenps for helping with this.
-         *      (In no way have they endorsed or attested to the correctness of
-         *      this code. Any and all errors are mine and mine alone.)
-         */
-    }
-    return result;
+ 	unsigned char result = 0;
+	for(uint32_t i = 0; i < length; ++i) {
+		/* result = (index != i) ? result : array[i] */
+		result = ct_select_u32(result, array[i], ct_neq_u32(index, i));
+	}
+	return result;
 }
-
-
