@@ -52,7 +52,6 @@ int getPassword(const char *set, unsigned long setLength, unsigned char *passwor
 int showRandomWords(void);
 int runtimeTests(void);
 void *memset_s(void *v, int c, size_t n);
-unsigned char invariant_time_lookup(const unsigned char *array, unsigned int length, unsigned int index);
 
 static struct option long_options[] = {
     {"help",              no_argument,       NULL, 'h' },
@@ -420,15 +419,4 @@ void *memset_s(void *v, int c, size_t n) {
     *p++ = c;
  
   return v;
-}
-
-/* Written by Samuel Neves. */
-unsigned char invariant_time_lookup(const unsigned char *array, uint32_t length, uint32_t index)
-{
- 	unsigned char result = 0;
-	for(uint32_t i = 0; i < length; ++i) {
-		/* result = (index != i) ? result : array[i] */
-		result = ct_select_u32(result, array[i], ct_neq_u32(index, i));
-	}
-	return result;
 }

@@ -115,3 +115,14 @@ uint32_t ct_select_u32(uint32_t x, uint32_t y, uint32_t bit)
     return (x&m) | (y&~m);
     /* return ((x^y)&m)^y; */
 }
+
+/* This isn't in the gist, but was given to me by Samuel Neves on Twitter. */
+unsigned char invariant_time_lookup(const unsigned char *array, uint32_t length, uint32_t index)
+{
+ 	unsigned char result = 0;
+	for(uint32_t i = 0; i < length; ++i) {
+		/* result = (index != i) ? result : array[i] */
+		result = ct_select_u32(result, array[i], ct_neq_u32(index, i));
+	}
+	return result;
+}
