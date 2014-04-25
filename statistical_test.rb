@@ -96,6 +96,8 @@ end # charsets.each
 
 if all_good
   puts "ALL TESTS PASS."
+  exit(0)
 else
   puts "FAILURES!"
+  exit(1)
 end
