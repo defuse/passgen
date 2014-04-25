@@ -30,7 +30,10 @@
 #include <string.h>
 #include <getopt.h>
 #include <limits.h>
+#include <stdint.h>
 
+/* Constant time integer functions by Samuel Neves */
+#include "ct32.h"
 /* Automatically generated file containing the wordlist array. */
 #include "wordlist.h"
 
@@ -45,10 +48,11 @@ int getRandom(void* buffer, unsigned long bufferlength);
 int getRandomUnsignedLong(unsigned long *random);
 void showHelp(void);
 unsigned long getLeastCoveringMask(unsigned long toRepresent);
-int getPassword(const char *set, unsigned long setLength, char *password, unsigned long passwordLength);
+int getPassword(const char *set, unsigned long setLength, unsigned char *password, unsigned long passwordLength);
 int showRandomWords(void);
 int runtimeTests(void);
 void *memset_s(void *v, int c, size_t n);
+unsigned char invariant_time_lookup(const unsigned char *array, unsigned int length, unsigned int index);
 
 static struct option long_options[] = {
     {"help",              no_argument,       NULL, 'h' },
@@ -171,13 +175,11 @@ int main(int argc, char* argv[])
             }
         }
     } else {
-        char result[PASSWORD_LENGTH];
+        unsigned char result[PASSWORD_LENGTH];
         
         for(int i = 0; i < numberOfPasswords; i++) {
             if(getPassword(set, strlen(set), result, PASSWORD_LENGTH)) {
-                for(int j = 0; j < PASSWORD_LENGTH; j++) {
-                    printf("%c", result[j]);
-                }
+                fwrite(result, sizeof(unsigned char), PASSWORD_LENGTH, stdout);
                 printf("\n");
             } else {
                 memset_s(result, 0, PASSWORD_LENGTH);
@@ -206,7 +208,7 @@ void showHelp(void)
     puts("  -p, --password-count N\t\tSpecify number of passwords to generate");
 }
 
-int getPassword(const char *set, unsigned long setLength, char *password, unsigned long passwordLength)
+int getPassword(const char *set, unsigned long setLength, unsigned char *password, unsigned long passwordLength)
 {
     unsigned long bufLen = passwordLength; 
     unsigned long bufIdx = 0;
@@ -245,7 +247,7 @@ int getPassword(const char *set, unsigned long setLength, char *password, unsign
 
         // Discard the random byte if it isn't in range.
         if(c < setLength) {
-            password[i] = set[c];
+            password[i] = invariant_time_lookup((const unsigned char*)set, setLength, c);
             i++;
         }
     }
@@ -355,13 +357,14 @@ int runtimeTests(void)
     if (getLeastCoveringMask(6) != 7) { return 0; }
     if (getLeastCoveringMask(7) != 7) { return 0; }
     if (getLeastCoveringMask(8) != 15) { return 0; }
-    if (getLeastCoveringMask(255) != 255) { return 0; }
 
     /* Test getLeastCoveringMask around weird values. */
+    if (getLeastCoveringMask(255) != 255) { return 0; }
     if (getLeastCoveringMask(ULONG_MAX) != ULONG_MAX) { return 0; }
     if (getLeastCoveringMask(ULONG_MAX - 1) != ULONG_MAX) { return 0; }
 
-    char buffer2[128];
+    /* Test that the first and last character in the set can be selected. */
+    unsigned char buffer2[128];
     getPassword("AB", 2, buffer2, sizeof(buffer2));
     unsigned int a_count = 0, b_count = 0;
     for (size_t i = 0; i < sizeof(buffer2); i++) {
@@ -373,12 +376,34 @@ int runtimeTests(void)
         return 0;
     }
 
+    /* Make sure memset_s zeroes the memory. */
     buffer2[0] = -1;
     buffer2[3] = -1;
     buffer2[127] = -1;
     memset_s(buffer2, 0, sizeof(buffer2));
     if (buffer2[0] != 0 || buffer2[3] != 0 || buffer2[127] != 0) {
         return 0;
+    }
+
+    /* Test the functions we use from Samuel Neves' code. */
+    if (ct_eq_u32(0, 0) != 1) { return 0; }
+    if (ct_eq_u32(5, 5) != 1) { return 0; }
+    if (ct_eq_u32(0x80000000u, 0x80000000u) != 1) { return 0; }
+    if (ct_eq_u32(0, 1) != 0) { return 0; }
+    if (ct_eq_u32(1, 0) != 0) { return 0; }
+    if (ct_eq_u32(2, 0) != 0) { return 0; }
+    if (ct_eq_u32(3, 0) != 0) { return 0; }
+    if (ct_eq_u32(1, 2) != 0) { return 0; }
+    if (ct_eq_u32(0x80000000u, 0) != 0) { return 0; }
+    if (ct_mask_u32(ct_eq_u32(1, 1)) != UINT32_MAX) { return 0; }
+    if (ct_mask_u32(ct_eq_u32(1, 0)) != 0) { return 0; }
+
+    /* Test the constant-time array lookup code. */
+    const char *set = CHARSET_ASCII;
+    for (size_t i = 0; i < strlen(set); i++) {
+        if (set[i] != invariant_time_lookup((const unsigned char*)set, strlen(set), i)) {
+            return 0;
+        }
     }
 
     return 1;
@@ -396,4 +421,40 @@ void *memset_s(void *v, int c, size_t n) {
  
   return v;
 }
+
+unsigned char invariant_time_lookup(const unsigned char *array, uint32_t length, uint32_t index)
+{
+    unsigned char result = 0;
+    for (uint32_t i = 0; i < length; i++) {
+        /* If the index is wrong, mask will be zero, and we'll bitwise-or zero
+         * into the result (which has no effect). If the index is right, the
+         * mask will be all 1 bits, so we'll bitwise-or the contents of the
+         * array into the result. */
+        uint32_t mask = ct_mask_u32(ct_eq_u32(index, i));
+        result |= (unsigned long)array[i] & (unsigned long)mask;
+
+        /*
+         * The explicit casts to unsigned long makes this a little easier to
+         * reason about. I think it would work if they weren't there, but the
+         * logic is a lot simpler this way:
+         *
+         * The cast to unsigned long is guaranteed to preserve the value of both
+         * operands, since unsigned long is guaranteed to be at least 32 bits.
+         * Since unsigned long ranks higher than int, integer promotions will do
+         * nothing. Since both types are the same after promotions, conversions
+         * will also do nothing. The bitwise-and will be performed between
+         * unsigned longs, and the result will be truncated (value-changing, but
+         * defined) to an unsigned char.
+         *
+         * If this line ever changes, remember to consider ILP64 systems, where
+         * int is 64 bits, in which case 'mask' would get promoted to int.
+         *
+         * p.s. Thanks to @solardiz and @sevenps for helping with this.
+         *      (In no way have they endorsed or attested to the correctness of
+         *      this code. Any and all errors are mine and mine alone.)
+         */
+    }
+    return result;
+}
+
 

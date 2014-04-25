@@ -1,8 +1,14 @@
 
 LOTS_O_WARNINGS = -pedantic -Werror -Wall -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual -Wpointer-arith -Wstrict-aliasing -Wformat=2 -Wmissing-declarations -Wmissing-include-dirs -Wno-unused-parameter -Wuninitialized -Wold-style-definition -Wstrict-prototypes -Wmissing-prototypes
 
-passgen: passgen.c wordlist.h
-	gcc -std=c99 $(LOTS_O_WARNINGS) passgen.c -o passgen
+passgen: passgen.o ct32.o
+	gcc -std=c99 $(LOTS_O_WARNINGS) ct32.o passgen.o -o passgen
+
+passgen.o: passgen.c wordlist.h ct32.h
+	gcc -std=c99 $(LOTS_O_WARNINGS) -c passgen.c -o passgen.o
+
+ct32.o: ct32.c ct32.h
+	gcc -std=c99 $(LOTS_O_WARNINGS) -c ct32.c -o ct32.o
 
 testbuild: passgen.c wordlist.h
 	gcc -fprofile-arcs -ftest-coverage -std=c99 $(LOTS_O_WARNINGS) passgen.c -o passgen
