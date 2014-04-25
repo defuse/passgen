@@ -10,9 +10,6 @@ passgen.o: passgen.c wordlist.h ct32.h
 ct32.o: ct32.c ct32.h
 	gcc -std=c99 $(LOTS_O_WARNINGS) -c ct32.c -o ct32.o
 
-testbuild: passgen.c wordlist.h
-	gcc -fprofile-arcs -ftest-coverage -std=c99 $(LOTS_O_WARNINGS) passgen.c -o passgen
-
 wordlist.h: generate_wordlist.rb wordlist.txt
 	ruby generate_wordlist.rb > wordlist.h
 

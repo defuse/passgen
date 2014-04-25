@@ -8,8 +8,10 @@ before_install:
 
 script:
     - make && make test
-    - make testbuild && make test
+    # - make testbuild && make test
     # We do both just in case 'testbuild' is somehow different.
 
 after_success:
-    - coveralls
+    # - coveralls
+
+    # XXX: Commented out the stuff for coveralls because need better Makefile.
