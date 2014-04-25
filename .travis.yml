@@ -8,7 +8,7 @@ before_install:
 
 script:
     # Regular build and test.
-    - make && make test
+    - make && make test && make stat_test_fast
     # Clean up so the next build will always re-build everything.
     - make clean
     # Build and test with code coverage stuff.
