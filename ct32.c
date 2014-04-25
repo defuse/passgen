@@ -104,7 +104,7 @@ int ct_ge_s32(uint32_t x, uint32_t y)
 /* Generate a mask: 0xFFFFFFFF if bit != 0, 0 otherwise */
 uint32_t ct_mask_u32(uint32_t bit)
 {
-    return -ct_isnonzero_u32(bit);
+    return -(uint32_t)ct_isnonzero_u32(bit);
 }
 
 /* Conditionally return x or y depending on whether bit is set */
