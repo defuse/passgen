@@ -68,7 +68,7 @@ output = `./passgen -a -p -2 2>&1`
 # Note: This may false-negative, but the probability of that is extremely low.
 
 puts "Sorry, this will take a few minutes..."
-words = File.readlines("wordlist.txt").map { |w| w.strip }
+words = File.readlines("libs/wordlist.txt").map { |w| w.strip }
 output = `./passgen -w -p #{words.count} 2>&1`
 "Random Words".is_broken unless output.include?("."+words.first+".") and output.include?("."+words.last+".")
 

@@ -2,7 +2,7 @@
 # The wordlist is a modified version of the diceware list:
 # http://world.std.com/~reinhold/diceware.wordlist.asc
 # Commands for re-generating it are in the Makefile.
-WORDLIST = "wordlist.txt"
+WORDLIST = ARGV[0]
 
 print <<-eos
 /*

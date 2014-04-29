@@ -33,13 +33,13 @@
 #include <stdint.h>
 
 /* Constant time integer functions by Samuel Neves */
-#include "ct32.h"
+#include "libs/ct32.h"
 /* Constant time string library. */
-#include "ct_string.h"
+#include "libs/ct_string.h"
 /* Automatically generated file containing the wordlist array. */
-#include "wordlist.h"
+#include "libs/wordlist.h"
 /* An implementation of memset() that the compiler won't optimize out. */
-#include "memset_s.h"
+#include "libs/memset_s.h"
 
 #define PASSWORD_LENGTH 64
 #define WORD_COUNT 10
