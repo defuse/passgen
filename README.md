@@ -25,7 +25,7 @@ Examples
     4BE6BDA72CB2BB6CC5E163B6209B7489733031C4D150DC013AA4477D26C863C8
 
     $ passgen --words
-    bryan.dress.zap.mist.eben.ahead.debar.gospel.nylon.event
+    wig.slime.sip.silas.joyce.whelm.rhino.facile.wacky.accrue............
 
     $ passgen --hex -p 5
     753924DC422047A0D9FFDDEE87BCF6BA65D992EE317178D1C77BDE46DAC13C42
