@@ -36,11 +36,11 @@ output = `./passgen -a 2>&1`
 
 output = `./passgen --words 2>&1`
 "Word Exit Status".is_broken unless $?.exitstatus == 0
-"Word Output".is_broken unless /\A(([a-z]+)\.){9}[a-z]+\n\z/ =~ output
+"Word Output".is_broken unless /\A(([a-z]+)\.){9}[a-z]+\.*\n\z/ =~ output
 
 output = `./passgen -w 2>&1`
 "Word Exit Status".is_broken unless $?.exitstatus == 0
-"Word Output".is_broken unless /\A(([a-z]+)\.){9}[a-z]+\n\z/ =~ output
+"Word Output".is_broken unless /\A(([a-z]+)\.){9}[a-z]+\.*\n\z/ =~ output
 
 # Test what happens when /dev/urandom is missing.
 output = `fakechroot sh -c "chroot ./ /passgen -x 2>&1"`
@@ -49,7 +49,7 @@ output = `fakechroot sh -c "chroot ./ /passgen -x 2>&1"`
 
 output = `fakechroot sh -c "chroot ./ /passgen -x -z 2>&1"`
 "URANDOM Exit Status".is_broken unless $?.exitstatus == 1
-"URANDOM Output".is_broken unless output === "Error getting random data.\n"
+"URANDOM Output".is_broken unless output === "Error getting random data or allocating memory.\n"
 
 # Test multiple password output
 
@@ -59,13 +59,16 @@ output = `./passgen -a -p 213 2>&1`
 
 output = `./passgen -w -p 213 2>&1`
 "Word Multiple Exit Status".is_broken unless $?.exitstatus == 0
-"Word Multiple Output".is_broken unless /\A((([a-z]+)\.){9}[a-z]+\n){213}\z/ =~ output
+"Word Multiple Output".is_broken unless /\A((([a-z]+)\.){9}[a-z]+\.*\n){213}\z/ =~ output
+
+output = `./passgen -a -p -2 2>&1`
+"Multiple (Negative) Exit Status".is_broken unless $?.exitstatus == 1
 
 # Make sure the first and last word in the wordlist can appear in the output.
 # Note: This may false-negative, but the probability of that is extremely low.
 
 puts "Sorry, this will take a few minutes..."
-words = File.readlines("wordlist.txt").map { |w| w.strip }
+words = File.readlines("libs/wordlist.txt").map { |w| w.strip }
 output = `./passgen -w -p #{words.count} 2>&1`
 "Random Words".is_broken unless output.include?("."+words.first+".") and output.include?("."+words.last+".")
 

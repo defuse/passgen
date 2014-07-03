@@ -1,10 +1,13 @@
 passgen
 =======
 
+[![Build Status](https://travis-ci.org/defuse/passgen.svg?branch=master)](https://travis-ci.org/defuse/passgen)
+[![Coverage Status](https://coveralls.io/repos/defuse/passgen/badge.png?branch=master)](https://coveralls.io/r/defuse/passgen?branch=master)
+
 `passgen` is a unix command line tool for generating passwords. It generates
 passwords by turning bytes from `/dev/urandom` into characters in the desired
 character set using the try-and-throw-away algorithm from Section 9.7 of
-Cryptography Engineering.
+Cryptography Engineering (Ferguson, Schneier, Kohno).
 
 It supports generating passwords with characters chosen from printable ASCII,
 alphanumeric, and hex characters, as well as a string of random words.
@@ -22,7 +25,7 @@ Examples
     4BE6BDA72CB2BB6CC5E163B6209B7489733031C4D150DC013AA4477D26C863C8
 
     $ passgen --words
-    bryan.dress.zap.mist.eben.ahead.debar.gospel.nylon.event
+    wig.slime.sip.silas.joyce.whelm.rhino.facile.wacky.accrue............
 
     $ passgen --hex -p 5
     753924DC422047A0D9FFDDEE87BCF6BA65D992EE317178D1C77BDE46DAC13C42
@@ -34,4 +37,7 @@ Examples
 Audit Status
 ------------
 
-`passgen` has not yet been subjected to a professional security audit.
+`passgen` has not yet been subjected to a professional security audit (except by
+its author, of course). This is being tracked in
+[GitHub Issue #7](https://github.com/defuse/passgen/issues/7).
+

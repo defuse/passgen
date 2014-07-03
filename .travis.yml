@@ -1,0 +1,18 @@
+# This is a build configuration for travis-ci.org
+language: c
+
+before_install:
+    - sudo apt-get update -qq
+    - sudo apt-get install fakechroot
+    - sudo pip install cpp-coveralls
+
+script:
+    # Regular build and test.
+    - make && make test && make stat_test_fast
+    # Clean up so the next build will always re-build everything.
+    - make clean
+    # Build and test with code coverage stuff.
+    - EXTRA_GCC_FLAGS='-fprofile-arcs -ftest-coverage' make && make test
+
+after_success:
+    - coveralls
