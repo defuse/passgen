@@ -215,6 +215,7 @@ void showHelp(void)
     puts("  -x, --hex\t\t\t\t64-character hex string");
     puts("  -a, --ascii\t\t\t\t64-character ASCII string");
     puts("  -n, --alpha\t\t\t\t64-character alpha-numeric string");
+    puts("  -d, --digit\t\t\t\t64-character digit string");
     printf("  -w, --words\t\t\t\t%d random words from a list of %d\n", WORD_COUNT, WORDLIST_WORD_COUNT);
     puts("  -h, --help\t\t\t\tShow this help menu");
 

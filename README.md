@@ -24,6 +24,9 @@ Examples
     $ passgen --hex
     4BE6BDA72CB2BB6CC5E163B6209B7489733031C4D150DC013AA4477D26C863C8
 
+    $ passgen --digit
+    4104130170392073625297173179140853172681003693080726492644488275
+
     $ passgen --words
     wig.slime.sip.silas.joyce.whelm.rhino.facile.wacky.accrue............
 
