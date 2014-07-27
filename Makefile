@@ -3,6 +3,9 @@ LOTS_O_WARNINGS = -pedantic -Werror -Wall -Wextra -Wwrite-strings -Winit-self -W
 
 passgen: passgen.o libs/ct32.o libs/ct_string.o libs/memset_s.o
 	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) libs/ct32.o libs/memset_s.o libs/ct_string.o passgen.o -o passgen
+	@echo '!!!'
+	@echo '!!! --> Run `make test` and `make stat_test` to test the binary you just built!'
+	@echo '!!!'
 
 passgen.o: passgen.c libs/wordlist.h
 	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c passgen.c -o passgen.o
