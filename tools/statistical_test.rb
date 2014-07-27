@@ -17,11 +17,13 @@ SD_THRESHOLD = 3.5
 HEX = "0123456789ABCDEF".split('')
 ALPHANUMERIC = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')
 ASCII = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'.split('')
+DIGIT = "0123456789".split('')
 
 charsets = {
   "hex" => HEX,
   "alpha" => ALPHANUMERIC,
-  "ascii" => ASCII
+  "ascii" => ASCII,
+  "digit" => DIGIT
 }
 
 # True if and only if all statistical tests pass.

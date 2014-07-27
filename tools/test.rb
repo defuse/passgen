@@ -24,6 +24,7 @@ output = `./passgen -n 2>&1`
 "ALPHANUMERIC Exit Status".is_broken unless $?.exitstatus == 0
 "ALPHANUMERIC Output".is_broken unless /\A[0-9a-zA-Z]{64}\n\z/ =~ output
 
+# (The clever regexp is from http://www.catonmat.net/blog/my-favorite-regex/)
 output = `./passgen --ascii 2>&1`
 "ASCII Exit Status".is_broken unless $?.exitstatus == 0
 "ASCII Output".is_broken unless /\A[ -~]{64}\n\z/ =~ output
@@ -32,7 +33,13 @@ output = `./passgen -a 2>&1`
 "ASCII Exit Status".is_broken unless $?.exitstatus == 0
 "ASCII Output".is_broken unless /\A[ -~]{64}\n\z/ =~ output
 
-# (The clever regexp is from http://www.catonmat.net/blog/my-favorite-regex/)
+output = `./passgen --digit 2>&1`
+"DIGIT Exit Status".is_broken unless $?.exitstatus == 0
+"DIGIT Output".is_broken unless /\A\d{64}\n\z/ =~ output
+
+output = `./passgen -d 2>&1`
+"DIGIT Exit Status".is_broken unless $?.exitstatus == 0
+"DIGIT Output".is_broken unless /\A\d{64}\n\z/ =~ output
 
 output = `./passgen --words 2>&1`
 "Word Exit Status".is_broken unless $?.exitstatus == 0

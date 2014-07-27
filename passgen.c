@@ -47,6 +47,7 @@
 #define CHARSET_HEX "0123456789ABCDEF"
 #define CHARSET_ALPHANUMERIC "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 #define CHARSET_ASCII "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+#define CHARSET_DIGIT "0123456789"
 
 int getRandom(void* buffer, unsigned long bufferlength);
 int getRandomUnsignedLong(unsigned long *random);
@@ -62,6 +63,7 @@ static struct option long_options[] = {
     {"hex",               no_argument,       NULL, 'x' },
     {"alpha",             no_argument,       NULL, 'n' },
     {"ascii",             no_argument,       NULL, 'a' },
+    {"digit",             no_argument,       NULL, 'd' },
     {"words",             no_argument,       NULL, 'w' },
     {"password-count",    required_argument, NULL, 'p' },
     /* This skips the self test -- don't do it unless you're testing. */
@@ -86,7 +88,7 @@ int main(int argc, char* argv[])
     int optionCharacter = 0;
     int isPasswordTypeSet = 0;
     int isPasswordCountSet = 0;
-    while((optionCharacter = getopt_long(argc, argv, "hzxnwap:", long_options, NULL)) != -1) {
+    while((optionCharacter = getopt_long(argc, argv, "hzxndwap:", long_options, NULL)) != -1) {
             switch(optionCharacter)
             {
                 case 'h': /* help */
@@ -117,6 +119,15 @@ int main(int argc, char* argv[])
                         return EXIT_FAILURE;
                     }
                     set = CHARSET_ASCII;
+                    isPasswordTypeSet = 1;
+                    break;
+
+                case 'd': /* ascii password */
+                    if (isPasswordTypeSet) {
+                        showHelp();
+                        return EXIT_FAILURE;
+                    }
+                    set = CHARSET_DIGIT;
                     isPasswordTypeSet = 1;
                     break;
 
