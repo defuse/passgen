@@ -48,6 +48,7 @@
 #define CHARSET_ALPHANUMERIC "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 #define CHARSET_ASCII "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 #define CHARSET_DIGIT "0123456789"
+#define CHARSET_LOWER "abcdefghijklmnopqrstuvwxyz"
 
 int getRandom(void* buffer, unsigned long bufferlength);
 int getRandomUnsignedLong(unsigned long *random);
@@ -64,6 +65,7 @@ static struct option long_options[] = {
     {"alpha",             no_argument,       NULL, 'n' },
     {"ascii",             no_argument,       NULL, 'a' },
     {"digit",             no_argument,       NULL, 'd' },
+    {"lower",             no_argument,       NULL, 'l' },
     {"words",             no_argument,       NULL, 'w' },
     {"password-count",    required_argument, NULL, 'p' },
     /* This skips the self test -- don't do it unless you're testing. */
@@ -88,7 +90,7 @@ int main(int argc, char* argv[])
     int optionCharacter = 0;
     int isPasswordTypeSet = 0;
     int isPasswordCountSet = 0;
-    while((optionCharacter = getopt_long(argc, argv, "hzxndwap:", long_options, NULL)) != -1) {
+    while((optionCharacter = getopt_long(argc, argv, "hzxndlwap:", long_options, NULL)) != -1) {
             switch(optionCharacter)
             {
                 case 'h': /* help */
@@ -128,6 +130,15 @@ int main(int argc, char* argv[])
                         return EXIT_FAILURE;
                     }
                     set = CHARSET_DIGIT;
+                    isPasswordTypeSet = 1;
+                    break;
+
+                case 'l': /* lowercase password */
+                    if (isPasswordTypeSet) {
+                        showHelp();
+                        return EXIT_FAILURE;
+                    }
+                    set = CHARSET_LOWER;
                     isPasswordTypeSet = 1;
                     break;
 
@@ -215,7 +226,8 @@ void showHelp(void)
     puts("  -x, --hex\t\t\t\t64-character hex string");
     puts("  -a, --ascii\t\t\t\t64-character ASCII string");
     puts("  -n, --alpha\t\t\t\t64-character alpha-numeric string");
-    puts("  -d, --digit\t\t\t\t64-character digit string");
+    puts("  -d, --digit\t\t\t\t64-character digit string (for PINs)");
+    puts("  -l, --lower\t\t\t\t64-character lowercase alpha string (for phones)");
     printf("  -w, --words\t\t\t\t%d random words from a list of %d\n", WORD_COUNT, WORDLIST_WORD_COUNT);
     puts("  -h, --help\t\t\t\tShow this help menu");
 

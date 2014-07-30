@@ -41,6 +41,14 @@ output = `./passgen -d 2>&1`
 "DIGIT Exit Status".is_broken unless $?.exitstatus == 0
 "DIGIT Output".is_broken unless /\A\d{64}\n\z/ =~ output
 
+output = `./passgen --lower 2>&1`
+"LOWER Exit Status".is_broken unless $?.exitstatus == 0
+"LOWER Output".is_broken unless /\A[a-z]{64}\n\z/ =~ output
+
+output = `./passgen -l 2>&1`
+"LOWER Exit Status".is_broken unless $?.exitstatus == 0
+"LOWER Output".is_broken unless /\A[a-z]{64}\n\z/ =~ output
+
 output = `./passgen --words 2>&1`
 "Word Exit Status".is_broken unless $?.exitstatus == 0
 "Word Output".is_broken unless /\A(([a-z]+)\.){9}[a-z]+\.*\n\z/ =~ output

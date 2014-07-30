@@ -18,12 +18,14 @@ HEX = "0123456789ABCDEF".split('')
 ALPHANUMERIC = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".split('')
 ASCII = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'.split('')
 DIGIT = "0123456789".split('')
+LOWER = "abcdefghijklmnopqrstuvwxyz".split('')
 
 charsets = {
   "hex" => HEX,
   "alpha" => ALPHANUMERIC,
   "ascii" => ASCII,
-  "digit" => DIGIT
+  "digit" => DIGIT,
+  "lower" => LOWER
 }
 
 # True if and only if all statistical tests pass.
