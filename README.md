@@ -27,6 +27,9 @@ Examples
     $ passgen --digit
     4104130170392073625297173179140853172681003693080726492644488275
 
+    $ ./passgen --lower
+    kbwbjothonqxxcwswofxiviasqvgzzemzwcqltfgmvnyljhbshpqerxyenqdxtgo
+
     $ passgen --words
     wig.slime.sip.silas.joyce.whelm.rhino.facile.wacky.accrue............
 
