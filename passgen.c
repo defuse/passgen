@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
                     isPasswordTypeSet = 1;
                     break;
 
-                case 'd': /* ascii password */
+                case 'd': /* digit password */
                     if (isPasswordTypeSet) {
                         showHelp();
                         return EXIT_FAILURE;
