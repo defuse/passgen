@@ -221,18 +221,18 @@ int main(int argc, char* argv[])
 void showHelp(void)
 {
     puts("Usage: passgen <type> <optional arguments>");
-    puts("WARNING: If automated, you MUST check that the exit status is 0.");
     puts("Where <type> is one of:");
-    puts("  -x, --hex\t\t\t\t64-character hex string");
-    puts("  -a, --ascii\t\t\t\t64-character ASCII string");
-    puts("  -n, --alpha\t\t\t\t64-character alpha-numeric string");
-    puts("  -d, --digit\t\t\t\t64-character digit string (for PINs)");
-    puts("  -l, --lower\t\t\t\t64-character lowercase alpha string (for phones)");
+    puts("  -x, --hex\t\t\t\t64 hexadecimal characters");
+    puts("  -a, --ascii\t\t\t\t64 ASCII characters");
+    puts("  -n, --alpha\t\t\t\t64 alpha-numeric characters");
+    puts("  -d, --digit\t\t\t\t64 digit characters (for PINs)");
+    puts("  -l, --lower\t\t\t\t64 lower-alpha characters (for phones)");
     printf("  -w, --words\t\t\t\t%d random words from a list of %d\n", WORD_COUNT, WORDLIST_WORD_COUNT);
     puts("  -h, --help\t\t\t\tShow this help menu");
 
     puts("Where <optional arguments> can be:");
     puts("  -p, --password-count N\t\tSpecify number of passwords to generate");
+    puts("WARNING: If automated, you MUST check that the exit status is 0.");
 }
 
 int getPassword(const char *set, unsigned long setLength, unsigned char *password, unsigned long passwordLength)
