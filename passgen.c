@@ -246,6 +246,7 @@ int getPassword(const char *set, unsigned long setLength, unsigned char *passwor
     }
 
     if (setLength < 1 || setLength > 256) {
+        free(rndBuf);
         return 0;
     }
     unsigned char bitMask = getLeastCoveringMask(setLength - 1ul) & 0xFF;
