@@ -384,6 +384,7 @@ int getRandom(void* buffer, unsigned long bufferlength)
 
     size_t read = fread(buffer, sizeof(unsigned char), bufferlength, random);
     if(read != bufferlength) {
+        fclose(random);
         return 0;
     }
 
