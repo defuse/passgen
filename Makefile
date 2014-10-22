@@ -42,5 +42,5 @@ stat_test_fast:
 	ruby tools/statistical_test.rb fast
 
 clean:
-	rm passgen passgen.o libs/ct32.o libs/ct_string.o libs/memset_s.o
+	rm -f passgen passgen.o libs/ct32.o libs/ct_string.o libs/memset_s.o
 	find -name '*.gcda' -o -name '*.gcno' -delete
