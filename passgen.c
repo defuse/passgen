@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
                         showHelp();
                         return EXIT_FAILURE;
                     }
-                    if(sscanf(optarg, "%5d", &numberOfPasswords) == 1) {
+                    if(sscanf(optarg, "%10d", &numberOfPasswords) == 1) {
                         if (numberOfPasswords <= 0) {
                             showHelp();
                             return EXIT_FAILURE;
