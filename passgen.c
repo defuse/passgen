@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
                         showHelp();
                         return EXIT_FAILURE;
                     }
-                    if(sscanf(optarg, "%d", &numberOfPasswords) == 1) {
+                    if(sscanf(optarg, "%10d", &numberOfPasswords) == 1) {
                         if (numberOfPasswords <= 0) {
                             showHelp();
                             return EXIT_FAILURE;
@@ -246,6 +246,7 @@ int getPassword(const char *set, unsigned long setLength, unsigned char *passwor
     }
 
     if (setLength < 1 || setLength > 256) {
+        free(rndBuf);
         return 0;
     }
     unsigned char bitMask = getLeastCoveringMask(setLength - 1ul) & 0xFF;
@@ -383,6 +384,7 @@ int getRandom(void* buffer, unsigned long bufferlength)
 
     size_t read = fread(buffer, sizeof(unsigned char), bufferlength, random);
     if(read != bufferlength) {
+        fclose(random);
         return 0;
     }
 
