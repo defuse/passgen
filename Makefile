@@ -27,6 +27,8 @@ DESTDIR =
 PREFIX = /usr
 
 BINDIR = $(PREFIX)/bin
+DATADIR= $(PREFIX)/share
+
 
 
 .PHONY: all
@@ -71,8 +73,9 @@ stat_test_fast:
 	ruby tools/statistical_test.rb fast
 
 .PHONY: install
-install: passgen
+install: passgen passgen.1
 	install -m 755 -D passgen "$(DESTDIR)/$(BINDIR)/passgen"
+	install -m 755 -D passgen.1 "$(DESTDIR)/$(DATADIR)/man/man1/passgen.1"
 
 .PHONY: clean
 clean:
