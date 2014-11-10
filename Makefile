@@ -30,10 +30,10 @@ BINDIR = $(PREFIX)/bin
 
 
 .PHONY: all
-all: passgen
+all: passgen passgen.1
 
 passgen: passgen.o libs/ct32.o libs/ct_string.o libs/memset_s.o
-	$(CC) -std=c99 -o $@ $?
+	$(CC) -std=c99 -o $@ $^
 	@echo '!!!'
 	@echo '!!! --> Run `make test` and `make stat_test` to test the binary you just built!'
 	@echo '!!!'
@@ -48,6 +48,9 @@ libs/wordlist.h: tools/generate_wordlist.rb libs/wordlist.txt
 .PHONY: wordlist
 wordlist:
 	wget world.std.com/~reinhold/diceware.wordlist.asc -O - | egrep "[0-9]{5}" | cut -f 2 | egrep '^[[:alpha:]]{3,}[[:alpha:]]*$$' | sort -u > libs/wordlist.txt
+
+passgen.1: README.md
+	ronn -r $< --pipe > $@
 
 # NOTE: The `sort -u` serves a security purpose here:
 # Without it, if a network attacker injected duplicate words into the downloaded
