@@ -1,27 +1,45 @@
-LOTS_O_WARNINGS = -pedantic -Werror -Wall -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual -Wpointer-arith -Wstrict-aliasing -Wformat=2 -Wmissing-declarations -Wmissing-include-dirs -Wno-unused-parameter -Wuninitialized -Wold-style-definition -Wstrict-prototypes -Wmissing-prototypes
+CFLAGS += -std=c99 \
+		  -pedantic \
+		  -Werror \
+		  -Wall \
+		  -Wextra \
+		  -Wwrite-strings \
+		  -Winit-self \
+		  -Wcast-align \
+		  -Wcast-qual \
+		  -Wpointer-arith \
+		  -Wstrict-aliasing \
+		  -Wformat=2 \
+		  -Wmissing-declarations \
+		  -Wmissing-include-dirs \
+		  -Wno-unused-parameter \
+		  -Wuninitialized \
+		  -Wold-style-definition \
+		  -Wstrict-prototypes \
+		  -Wmissing-prototypes
 
-PREFIX=/usr/bin
+
+# Often used when packaging software to copy files to a temp
+# directory before tarballing. Defaults to none (/)
+DESTDIR =
+
+# Base directory the program will end up being installed to
+PREFIX = /usr
+
+BINDIR = $(PREFIX)/bin
+
 
 .PHONY: all
 all: passgen
 
 passgen: passgen.o libs/ct32.o libs/ct_string.o libs/memset_s.o
-	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) libs/ct32.o libs/memset_s.o libs/ct_string.o passgen.o -o passgen
+	$(CC) -std=c99 -o $@ $?
 	@echo '!!!'
 	@echo '!!! --> Run `make test` and `make stat_test` to test the binary you just built!'
 	@echo '!!!'
 
-passgen.o: passgen.c libs/wordlist.h
-	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c passgen.c -o passgen.o
-
-libs/ct32.o: libs/ct32.c libs/ct32.h
-	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c libs/ct32.c -o libs/ct32.o
-
-libs/ct_string.o: libs/ct_string.c libs/ct_string.h
-	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c libs/ct_string.c -o libs/ct_string.o
-
-libs/memset_s.o: libs/memset_s.c libs/memset_s.h
-	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c libs/memset_s.c -o libs/memset_s.o
+%.o: %.c
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 libs/wordlist.h: tools/generate_wordlist.rb libs/wordlist.txt
 	ruby tools/generate_wordlist.rb libs/wordlist.txt > libs/wordlist.h
@@ -51,7 +69,7 @@ stat_test_fast:
 
 .PHONY: install
 install: passgen
-	install -m 755 -D passgen $(PREFIX)/passgen
+	install -m 755 -D passgen "$(DESTDIR)/$(BINDIR)/passgen"
 
 .PHONY: clean
 clean:
