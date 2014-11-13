@@ -237,11 +237,11 @@ int main(int argc, char* argv[])
                 fwrite(result, sizeof(unsigned char), pwLength, stdout);
                 printf("\n");
             } else {
-                memset_s(result, 0, PASSWORD_LENGTH_DEFAULT);
+                memset_s(result, 0, pwLength);
                 fprintf(stderr, "Error getting random data or allocating memory.\n");
                 return EXIT_FAILURE;
             }
-            memset_s(result, 0, PASSWORD_LENGTH_DEFAULT);
+            memset_s(result, 0, pwLength);
         }
     }
 
