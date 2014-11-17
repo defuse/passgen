@@ -42,7 +42,7 @@
 #include "libs/memset_s.h"
 
 #define PASSWORD_LENGTH_DEFAULT     64
-#define PASSWORD_LENGTH_MIN         8
+#define PASSWORD_LENGTH_MIN         1
 
 #define WORD_COUNT 10
 
