@@ -230,7 +230,13 @@ int main(int argc, char* argv[])
             }
         }
     } else {
-        unsigned char result[pwLength];
+        unsigned char* result = malloc(pwLength);
+        
+        if( result == NULL )
+        {
+            fprintf(stderr, "Failed to allocate memory!\n");
+            return EXIT_FAILURE;
+        }
         
         for(int i = 0; i < numberOfPasswords; i++) {
             if(getPassword(set, strlen(set), result, pwLength)) {
@@ -238,11 +244,13 @@ int main(int argc, char* argv[])
                 printf("\n");
             } else {
                 memset_s(result, 0, pwLength);
+                free(result);
                 fprintf(stderr, "Error getting random data or allocating memory.\n");
                 return EXIT_FAILURE;
             }
             memset_s(result, 0, pwLength);
         }
+        free(result);
     }
 
     return EXIT_SUCCESS;
