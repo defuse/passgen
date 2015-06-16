@@ -75,13 +75,8 @@ static struct option long_options[] = {
 
 int main(int argc, char* argv[])
 {
-    if(argc < 2) {
-        showHelp();
-        return EXIT_FAILURE;
-    }
-    
     /* Options */
-    const char *set; 
+    const char *set;
     int numberOfPasswords = 1;
     int generateWordPassword = 0;
     int skipSelfTest = 0;
@@ -177,7 +172,7 @@ int main(int argc, char* argv[])
                     return EXIT_FAILURE;
             }
     }
-    
+
     /* Choosing a password type is mandatory. */
     if(!isPasswordTypeSet) {
         showHelp();
@@ -201,7 +196,7 @@ int main(int argc, char* argv[])
         }
     } else {
         unsigned char result[PASSWORD_LENGTH];
-        
+
         for(int i = 0; i < numberOfPasswords; i++) {
             if(getPassword(set, strlen(set), result, PASSWORD_LENGTH)) {
                 fwrite(result, sizeof(unsigned char), PASSWORD_LENGTH, stdout);
@@ -237,7 +232,7 @@ void showHelp(void)
 
 int getPassword(const char *set, unsigned long setLength, unsigned char *password, unsigned long passwordLength)
 {
-    unsigned long bufLen = passwordLength; 
+    unsigned long bufLen = passwordLength;
     unsigned long bufIdx = 0;
     unsigned char *rndBuf = (unsigned char*)malloc(bufLen);
 
@@ -266,7 +261,7 @@ int getPassword(const char *set, unsigned long setLength, unsigned char *passwor
                 free(rndBuf);
                 return 0;
             }
-            
+
             bufIdx = 0;
         }
 
