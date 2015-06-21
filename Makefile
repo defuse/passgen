@@ -56,4 +56,4 @@ install: passgen
 .PHONY: clean
 clean:
 	rm -f passgen passgen.o libs/ct32.o libs/ct_string.o libs/memset_s.o
-	find -name '*.gcda' -o -name '*.gcno' -delete
+	find . -name '*.gcda' -o -name '*.gcno' -delete
