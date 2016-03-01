@@ -4,7 +4,7 @@ puts "WARNING: This takes about 10-20 hours to run, depending on your system."
 PASSWORD_SAMPLES = 10_000_000
 SD_THRESHOLD = 3.5
 
-WORDS = File.readlines("wordlist.txt").map { |word| word.strip }
+WORDS = File.readlines("libs/wordlist.txt").map { |word| word.strip }
 
 # True if and only if all statistical tests pass.
 all_good = true

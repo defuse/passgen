@@ -34,8 +34,8 @@ File.open(WORDLIST, 'r') do |wl|
   lines.each do |line|
     # The length has to be represented in an unsigned char.
     if line.length > 255
-      puts "A line is too long!"
-      exit(1)
+      STDERR.puts "A line is too long!"
+      exit 1
     end
 
     # Start the word array with a byte for the length (without padding).
@@ -44,8 +44,15 @@ File.open(WORDLIST, 'r') do |wl|
     # Pad the word with 'Z' until it's as long as the longest word.
     line = line.ljust(max_word_length, "Z")
 
+    bytes = line.each_byte.to_a
+
+    if bytes.length != line.length
+      STDERR.puts "ERROR: Funky unicode stuff is in the list at #{line} vs #{bytes}."
+      exit 1
+    end
+
     # Print the rest of the word's bytes.
-    line.each_byte do |c|
+    bytes.each do |c|
       print " %3d, " % [c]
     end
 

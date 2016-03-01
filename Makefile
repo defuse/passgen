@@ -29,7 +29,8 @@ libs/wordlist.h: tools/generate_wordlist.rb libs/wordlist.txt
 # Rebuild the wordlist from the original source.
 .PHONY: wordlist
 wordlist:
-	wget world.std.com/~reinhold/diceware.wordlist.asc -O - | egrep "[0-9]{5}" | cut -f 2 | egrep '^[[:alpha:]]{3,}[[:alpha:]]*$$' | sort -u > libs/wordlist.txt
+	# There are spurious UTF-8 BOM's in the file. The tr -cd removes them.
+	wget https://raw.githubusercontent.com/zooko/pyutil/master/pyutil/data/wordlist.txt -O - | tr -cd '\x11\12\15\40-\176' | sort -u > libs/wordlist.txt
 
 # NOTE: The `sort -u` serves a security purpose here:
 # Without it, if a network attacker injected duplicate words into the downloaded
