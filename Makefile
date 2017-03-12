@@ -1,27 +1,47 @@
-LOTS_O_WARNINGS = -pedantic -Werror -Wall -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual -Wpointer-arith -Wstrict-aliasing -Wformat=2 -Wmissing-declarations -Wmissing-include-dirs -Wno-unused-parameter -Wuninitialized -Wold-style-definition -Wstrict-prototypes -Wmissing-prototypes
+CFLAGS += -std=c99 \
+		  -pedantic \
+		  -Werror \
+		  -Wall \
+		  -Wextra \
+		  -Wwrite-strings \
+		  -Winit-self \
+		  -Wcast-align \
+		  -Wcast-qual \
+		  -Wpointer-arith \
+		  -Wstrict-aliasing \
+		  -Wformat=2 \
+		  -Wmissing-declarations \
+		  -Wmissing-include-dirs \
+		  -Wno-unused-parameter \
+		  -Wuninitialized \
+		  -Wold-style-definition \
+		  -Wstrict-prototypes \
+		  -Wmissing-prototypes
 
-PREFIX=/usr/bin
+
+# Often used when packaging software to copy files to a temp
+# directory before tarballing. Defaults to none (/)
+DESTDIR =
+
+# Base directory the program will end up being installed to
+PREFIX = /usr
+
+BINDIR = $(PREFIX)/bin
+DATADIR= $(PREFIX)/share
+
+
 
 .PHONY: all
-all: passgen
+all: passgen passgen.1
 
 passgen: passgen.o libs/ct32.o libs/ct_string.o libs/memset_s.o
-	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) libs/ct32.o libs/memset_s.o libs/ct_string.o passgen.o -o passgen
+	$(CC) -std=c99 -o $@ $^
 	@echo '!!!'
 	@echo '!!! --> Run `make test` and `make stat_test` to test the binary you just built!'
 	@echo '!!!'
 
-passgen.o: passgen.c libs/wordlist.h
-	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c passgen.c -o passgen.o
-
-libs/ct32.o: libs/ct32.c libs/ct32.h
-	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c libs/ct32.c -o libs/ct32.o
-
-libs/ct_string.o: libs/ct_string.c libs/ct_string.h
-	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c libs/ct_string.c -o libs/ct_string.o
-
-libs/memset_s.o: libs/memset_s.c libs/memset_s.h
-	gcc -std=c99 $(EXTRA_GCC_FLAGS) $(LOTS_O_WARNINGS) -c libs/memset_s.c -o libs/memset_s.o
+%.o: %.c
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 libs/wordlist.h: tools/generate_wordlist.rb libs/wordlist.txt
 	ruby tools/generate_wordlist.rb libs/wordlist.txt > libs/wordlist.h
@@ -31,6 +51,9 @@ libs/wordlist.h: tools/generate_wordlist.rb libs/wordlist.txt
 wordlist:
 	# There are spurious UTF-8 BOM's in the file. The tr -cd removes them.
 	wget https://raw.githubusercontent.com/zooko/pyutil/master/pyutil/data/wordlist.txt -O - | tr -cd '\x11\12\15\40-\176' | sort -u > libs/wordlist.txt
+
+passgen.1: README.md
+	ronn -r $< --pipe > $@
 
 # NOTE: The `sort -u` serves a security purpose here:
 # Without it, if a network attacker injected duplicate words into the downloaded
@@ -51,8 +74,9 @@ stat_test_fast:
 	ruby tools/statistical_test.rb fast
 
 .PHONY: install
-install: passgen
-	install -m 755 -D passgen $(PREFIX)/passgen
+install: passgen passgen.1
+	install -m 755 -D passgen "$(DESTDIR)/$(BINDIR)/passgen"
+	install -m 755 -D passgen.1 "$(DESTDIR)/$(DATADIR)/man/man1/passgen.1"
 
 .PHONY: clean
 clean:
