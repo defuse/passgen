@@ -41,7 +41,7 @@
 /* An implementation of memset() that the compiler won't optimize out. */
 #include "libs/memset_s.h"
 
-#define PASSWORD_LENGTH 64
+#define PASSWORD_LENGTH 20
 #define WORD_COUNT 10
 
 #define CHARSET_HEX "0123456789ABCDEF"
