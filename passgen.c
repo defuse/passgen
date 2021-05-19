@@ -41,7 +41,6 @@
 /* An implementation of memset() that the compiler won't optimize out. */
 #include "libs/memset_s.h"
 
-#define PASSWORD_LENGTH 20
 #define WORD_COUNT 10
 
 #define CHARSET_HEX "0123456789ABCDEF"
@@ -68,6 +67,7 @@ static struct option long_options[] = {
     {"lower",             no_argument,       NULL, 'l' },
     {"words",             no_argument,       NULL, 'w' },
     {"password-count",    required_argument, NULL, 'p' },
+    {"password-length",   required_argument, NULL, 'q' },
     /* This skips the self test -- don't do it unless you're testing. */
     {"dont-use-this",     no_argument,       NULL, 'z' },
     {NULL, 0, NULL, 0 }
@@ -78,6 +78,7 @@ int main(int argc, char* argv[])
     /* Options */
     const char *set;
     int numberOfPasswords = 1;
+    int passwordLength = 20;
     int generateWordPassword = 0;
     int skipSelfTest = 0;
 
@@ -85,7 +86,8 @@ int main(int argc, char* argv[])
     int optionCharacter = 0;
     int isPasswordTypeSet = 0;
     int isPasswordCountSet = 0;
-    while((optionCharacter = getopt_long(argc, argv, "hzxndlwap:", long_options, NULL)) != -1) {
+    int isPasswordLengthSet = 0;
+    while((optionCharacter = getopt_long(argc, argv, "hzxndlwap:q:", long_options, NULL)) != -1) {
             switch(optionCharacter)
             {
                 case 'h': /* help */
@@ -163,6 +165,23 @@ int main(int argc, char* argv[])
                     }
                     break;
 
+                case 'q': /* password length */
+                    if (isPasswordLengthSet) {
+                        showHelp();
+                        return EXIT_FAILURE;
+                    }
+                    if(sscanf(optarg, "%10d", &passwordLength) == 1) {
+                        if (passwordLength < 1 || passwordLength > 256) {
+                            showHelp();
+                            return EXIT_FAILURE;
+                        }
+                        isPasswordLengthSet = 1;
+                    } else {
+                        showHelp();
+                        return EXIT_FAILURE;
+                    }
+                    break;
+
                 case 'z': /* skip self test - for test.rb */
                     skipSelfTest = 1;
                     break;
@@ -195,18 +214,18 @@ int main(int argc, char* argv[])
             }
         }
     } else {
-        unsigned char result[PASSWORD_LENGTH];
+        unsigned char result[passwordLength];
 
         for(int i = 0; i < numberOfPasswords; i++) {
-            if(getPassword(set, strlen(set), result, PASSWORD_LENGTH)) {
-                fwrite(result, sizeof(unsigned char), PASSWORD_LENGTH, stdout);
+            if(getPassword(set, strlen(set), result, passwordLength)) {
+                fwrite(result, sizeof(unsigned char), passwordLength, stdout);
                 printf("\n");
             } else {
-                memset_s(result, 0, PASSWORD_LENGTH);
+                memset_s(result, 0, passwordLength);
                 fprintf(stderr, "Error getting random data or allocating memory.\n");
                 return EXIT_FAILURE;
             }
-            memset_s(result, 0, PASSWORD_LENGTH);
+            memset_s(result, 0, passwordLength);
         }
     }
 
@@ -227,6 +246,7 @@ void showHelp(void)
 
     puts("Where <optional arguments> can be:");
     puts("  -p, --password-count N\t\tSpecify number of passwords to generate");
+    puts("  -q, --password-length N\t\tSpecify length of passwords to generate (1-256)");
     puts("WARNING: If automated, you MUST check that the exit status is 0.");
 }
 
